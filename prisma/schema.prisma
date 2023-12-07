@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Sample {
+  id        Int         @id @default(autoincrement())
+  createdAt DateTime    @default(now())
+  PhaseData PhaseData[]
+}
+
+model PhaseData {
+  id           Int    @id @default(autoincrement())
+  phase        Int
+  voltage      Float
+  current      Float
+  power        Float
+  power_r      Float
+  power_a      Float
+  power_factor Float
+  sample       Sample @relation(fields: [sampleId], references: [id])
+  sampleId     Int
+}

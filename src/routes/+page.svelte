@@ -82,7 +82,6 @@
 	}
 	table {
 		@apply mx-2;
-		@apply w-full;
 	}
 	td {
 		@apply py-2 px-4 border;

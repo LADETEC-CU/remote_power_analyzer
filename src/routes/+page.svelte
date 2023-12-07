@@ -23,40 +23,40 @@
 	<!-- {data?.measurement.sample.createdAt} -->
 	<div class="flex">
 		{#each data?.measurement.phases as phase}
-			<table class="w-28 mx-2">
+			<table>
 				<thead>
 					<tr>
-						<th colspan="2" class="px-4 bg-gray-200">Phase {phase.phase}</th>
+						<th colspan="2">Phase {phase.phase}</th>
 					</tr>
 					<tr>
-						<th class="py-2 px-4 bg-gray-200">Parameter</th>
-						<th class="py-2 px-4 bg-gray-200">Value</th>
+						<th>Parameter</th>
+						<th>Value</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<td class="py-2 px-4 border">Voltage</td>
-						<td class="py-2 px-4 border">{phase.voltage}V</td>
+						<td>Voltage</td>
+						<td>{phase.voltage}V</td>
 					</tr>
 					<tr>
-						<td class="py-2 px-4 border">Current</td>
-						<td class="py-2 px-4 border">{phase.current}A</td>
+						<td>Current</td>
+						<td>{phase.current}A</td>
 					</tr>
 					<tr>
-						<td class="py-2 px-4 border">Power</td>
-						<td class="py-2 px-4 border">{phase.power}W</td>
+						<td>Power</td>
+						<td>{phase.power}W</td>
 					</tr>
 					<tr>
-						<td class="py-2 px-4 border">Power Reactive</td>
-						<td class="py-2 px-4 border">{phase.power_r}VAR</td>
+						<td>Power Reactive</td>
+						<td>{phase.power_r}VAR</td>
 					</tr>
 					<tr>
-						<td class="py-2 px-4 border">Power Apparent</td>
-						<td class="py-2 px-4 border">{phase.power_a}VA</td>
+						<td>Power Apparent</td>
+						<td>{phase.power_a}VA</td>
 					</tr>
 					<tr>
-						<td class="py-2 px-4 border">Power Factor</td>
-						<td class="py-2 px-4 border">{phase.power_factor}</td>
+						<td>Power Factor</td>
+						<td>{phase.power_factor}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -79,5 +79,15 @@
 	#tailwind {
 		@apply cursor-pointer;
 		@apply from-green-400 via-blue-500 to-indigo-500;
+	}
+	table {
+		@apply mx-2;
+		@apply w-full;
+	}
+	td {
+		@apply py-2 px-4 border;
+	}
+	th {
+		@apply py-2 px-4 bg-gray-200;
 	}
 </style>

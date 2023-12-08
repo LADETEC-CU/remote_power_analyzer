@@ -1,9 +1,19 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import Number from '$components/Number.svelte';
 	import Clock from '$components/Clock.svelte';
 	import CounterButton from '$components/CounterButton.svelte';
 	/** @type {import('./$types').PageData} */
-	import { PrismaClient } from '@prisma/client';
+	import { invalidate } from '$app/navigation';
 	export let data;
+
+	onMount(() => {
+		const interval = setInterval(() => {
+			invalidate('app:sample');
+		}, 1000);
+
+		return () => clearInterval(interval);
+	});
 </script>
 
 <svelte:head>
@@ -36,27 +46,27 @@
 				<tbody>
 					<tr>
 						<td>Voltage</td>
-						<td>{phase.voltage}V</td>
+						<td><Number number={phase.voltage} />V</td>
 					</tr>
 					<tr>
 						<td>Current</td>
-						<td>{phase.current}A</td>
+						<td><Number number={phase.current} />A</td>
 					</tr>
 					<tr>
 						<td>Power</td>
-						<td>{phase.power}W</td>
+						<td><Number number={phase.power} />W</td>
 					</tr>
 					<tr>
 						<td>Power Reactive</td>
-						<td>{phase.power_r}VAR</td>
+						<td><Number number={phase.power_r} />VAR</td>
 					</tr>
 					<tr>
 						<td>Power Apparent</td>
-						<td>{phase.power_a}VA</td>
+						<td><Number number={phase.power_a} />VA</td>
 					</tr>
 					<tr>
 						<td>Power Factor</td>
-						<td>{phase.power_factor}</td>
+						<td><Number number={phase.power_factor} /></td>
 					</tr>
 				</tbody>
 			</table>

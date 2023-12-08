@@ -24,17 +24,16 @@ def generate_phase_data():
     }
 
 
-# Create a data payload in JSON format
-data = {
-    "phase1": generate_phase_data(),
-    "phase2": generate_phase_data(),
-    "phase3": generate_phase_data()
-}
-
 # Send the data to the API endpoint using the POST method
 headers = {'Content-Type': 'application/json'}
 
 while True:
+    # Create a data payload in JSON format
+    data = {
+        "phase1": generate_phase_data(),
+        "phase2": generate_phase_data(),
+        "phase3": generate_phase_data()
+    }
     response = requests.post(url, headers=headers, data=json.dumps(data))
 
     # Check the response status code

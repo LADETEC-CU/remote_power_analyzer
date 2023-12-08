@@ -82,6 +82,9 @@ devDependencies:
   svelte-preprocess:
     specifier: ^5.0.1
     version: 5.1.1(postcss@8.4.32)(svelte@3.59.2)(typescript@4.9.5)
+  sveltekit-sse:
+    specifier: ^0.5.0
+    version: 0.5.0(@microsoft/fetch-event-source@2.0.1)(@sveltejs/kit@1.27.7)(svelte@3.59.2)
   tailwindcss:
     specifier: ^3.2.4
     version: 3.3.6
@@ -406,6 +409,10 @@ packages:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
+    dev: true
+
+  /@microsoft/fetch-event-source@2.0.1:
+    resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
     dev: true
 
   /@nodelib/fs.scandir@2.1.5:
@@ -3337,6 +3344,18 @@ packages:
   /svelte@3.59.2:
     resolution: {integrity: sha512-vzSyuGr3eEoAtT/A6bmajosJZIUWySzY2CzB3w2pgPvnkUjGqlDnsNnA0PMO+mMAhuyMul6C2uuZzY6ELSkzyA==}
     engines: {node: '>= 8'}
+    dev: true
+
+  /sveltekit-sse@0.5.0(@microsoft/fetch-event-source@2.0.1)(@sveltejs/kit@1.27.7)(svelte@3.59.2):
+    resolution: {integrity: sha512-ru+zX8lTUHvU2b3BU8kOLAmTeR7xBQtP/nwc/3aJWYNXFhwFkkkRw01jBADcT26FbjuMNHpYp3ne93kMtwURjQ==}
+    peerDependencies:
+      '@microsoft/fetch-event-source': ^2.0.1
+      '@sveltejs/kit': ^1.25.2
+      svelte: ^4.0.0
+    dependencies:
+      '@microsoft/fetch-event-source': 2.0.1
+      '@sveltejs/kit': 1.27.7(svelte@3.59.2)(vite@4.5.1)
+      svelte: 3.59.2
     dev: true
 
   /tailwindcss@3.3.6:

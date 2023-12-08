@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import { db } from '$lib/db.server';
 /** @type {import('./$types').PageServerLoad} */
 
-export async function load({ params }) {
+export async function load({ params, depends }) {
 	try {
 		const sample = await db.sample.findFirst({
 			orderBy: {
@@ -14,7 +14,7 @@ export async function load({ params }) {
 				sampleId: sample?.id
 			}
 		});
-		console.log(sample.id, phases);
+		depends('app:sample');
 		return {
 			measurement: {
 				sample,

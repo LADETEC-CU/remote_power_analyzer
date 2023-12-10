@@ -4,6 +4,7 @@
 	import Number from '$components/Number.svelte';
 	import Clock from '$components/Clock.svelte';
 	import Ampmeter from '$components/Ampmeter.svelte';
+	import Chart from '$components/Chart.svelte';
 
 	import {
 		Tabs,
@@ -13,9 +14,7 @@
 		TableBodyCell,
 		TableBodyRow,
 		TableHead,
-		TableHeadCell,
-		Checkbox,
-		TableSearch
+		TableHeadCell
 	} from 'flowbite-svelte';
 	/** @type {import('./$types').PageData} */
 	import { invalidate } from '$app/navigation';
@@ -45,8 +44,16 @@
 	{#each data?.measurement.phases as phase, i}
 		<TabItem open={i < 1}>
 			<span slot="title">Phase {phase.phase}</span>
-			<div>
-				<Ampmeter current={phase.current} canvasId={`I${phase.phase}_gauge`} />
+			<div class="md:flex">
+				<div>
+					<Ampmeter current={phase.current} canvasId={`I${phase.phase}_gauge`} />
+				</div>
+				<div class="md:w-3/4">
+					<Chart
+						data={data?.measurement.powerHistory[phase.phase]}
+						chartID={`chart_${phase.phase}`}
+					/>
+				</div>
 			</div>
 			<Table>
 				<TableHead>
@@ -85,10 +92,4 @@
 </Tabs>
 
 <style lang="postcss">
-	.gauges {
-		@apply flex flex-wrap justify-between w-3/4;
-	}
-	.gauges div {
-		@apply w-1/3 px-6;
-	}
 </style>

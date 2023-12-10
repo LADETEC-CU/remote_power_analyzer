@@ -1,7 +1,11 @@
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma, DigitalOutput } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+const outputData = [
+	{ name: 'Luz' },
+	{ name: 'Cocina' }
+] satisfies Prisma.DigitalOutputUncheckedCreateInput[];
 const phaseData = [
 	{
 		phase: 1,
@@ -97,6 +101,11 @@ const phaseData = [
 
 async function main() {
 	console.log(`Start seeding ...`);
+	for (const o of outputData) {
+		await prisma.digitalOutput.create({
+			data: o
+		});
+	}
 	for (let i = 0; i < 3; i++) {
 		const sample = await prisma.sample.create({});
 		console.log(`Created sample with id: ${sample.id} at: ${sample.createdAt}`);

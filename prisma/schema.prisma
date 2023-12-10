@@ -28,3 +28,9 @@ model PhaseData {
   sample       Sample @relation(fields: [sampleId], references: [id])
   sampleId     Int
 }
+
+model DigitalOutput {
+  id    Int     @id @default(autoincrement())
+  name  String
+  value Boolean @default(false)
+}

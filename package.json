@@ -44,6 +44,8 @@
         "eslint-config-prettier": "^8.6.0",
         "eslint-plugin-import": "^2.27.5",
         "eslint-plugin-svelte": "^2.35.1",
+        "flowbite": "^2.2.0",
+        "flowbite-svelte": "^0.44.20",
         "husky": "^8.0.3",
         "lint-staged": "^13.1.0",
         "postcss": "^8.4.21",
@@ -61,6 +63,7 @@
     },
     "dependencies": {
         "@prisma/client": "5.7.0",
+        "apexcharts": "^3.44.2",
         "canvas-gauges": "^2.1.7"
     },
     "prisma": {

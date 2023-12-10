@@ -4,13 +4,23 @@
 	import Number from '$components/Number.svelte';
 	import Clock from '$components/Clock.svelte';
 	import Ampmeter from '$lib/components/Ampmeter.svelte';
+
+	import {
+		Tabs,
+		TabItem,
+		Table,
+		TableBody,
+		TableBodyCell,
+		TableBodyRow,
+		TableHead,
+		TableHeadCell,
+		Checkbox,
+		TableSearch
+	} from 'flowbite-svelte';
 	/** @type {import('./$types').PageData} */
 	import { invalidate } from '$app/navigation';
 
 	export let data;
-	let i1 = 0;
-
-	$: i1 = data?.measurement.phases[0].current;
 
 	onMount(() => {
 		const interval = setInterval(() => {
@@ -30,79 +40,55 @@
 	/>
 </svelte:head>
 
-<div class="container">
-	<Clock />
-	<div class="flex gauges">
-		<Ampmeter current={i1} canvasId="I1_gauge" />
-	</div>
-
-	<!-- {data?.measurement.sample.createdAt} -->
-	<div class="flex">
-		{#each data?.measurement.phases as phase}
-			<table>
-				<thead>
-					<tr>
-						<th colspan="2">Phase {phase.phase}</th>
-					</tr>
-					<tr>
-						<th>Parameter</th>
-						<th>Value</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>Voltage</td>
-						<td><Number number={phase.voltage} />V</td>
-					</tr>
-					<tr>
-						<td>Current</td>
-						<td><Number number={phase.current} />A</td>
-					</tr>
-					<tr>
-						<td>Power</td>
-						<td><Number number={phase.power} />W</td>
-					</tr>
-					<tr>
-						<td>Power Reactive</td>
-						<td><Number number={phase.power_r} />VAR</td>
-					</tr>
-					<tr>
-						<td>Power Apparent</td>
-						<td><Number number={phase.power_a} />VA</td>
-					</tr>
-					<tr>
-						<td>Power Factor</td>
-						<td><Number number={phase.power_factor} /></td>
-					</tr>
-				</tbody>
-			</table>
-		{/each}
-	</div>
-</div>
+<Clock />
+<Tabs tabStype="full">
+	{#each data?.measurement.phases as phase, i}
+		<TabItem open={i < 1}>
+			<span slot="title">Phase {phase.phase}</span>
+			<div>
+				<Ampmeter current={phase.current} canvasId={`I${phase.phase}_gauge`} />
+			</div>
+			<Table>
+				<TableHead>
+					<TableHeadCell>Parameter</TableHeadCell>
+					<TableHeadCell>Value</TableHeadCell>
+				</TableHead>
+				<TableBody class="divide-y">
+					<TableBodyRow>
+						<TableBodyCell>Voltage</TableBodyCell>
+						<TableBodyCell><Number number={phase.voltage} />V</TableBodyCell>
+					</TableBodyRow>
+					<TableBodyRow>
+						<TableBodyCell>Current</TableBodyCell>
+						<TableBodyCell><Number number={phase.current} />A</TableBodyCell>
+					</TableBodyRow>
+					<TableBodyRow>
+						<TableBodyCell>Power</TableBodyCell>
+						<TableBodyCell><Number number={phase.power} />W</TableBodyCell>
+					</TableBodyRow>
+					<TableBodyRow>
+						<TableBodyCell>Power Reactive</TableBodyCell>
+						<TableBodyCell><Number number={phase.power_r} />VAR</TableBodyCell>
+					</TableBodyRow>
+					<TableBodyRow>
+						<TableBodyCell>Power Apparent</TableBodyCell>
+						<TableBodyCell><Number number={phase.power_a} />VA</TableBodyCell>
+					</TableBodyRow>
+					<TableBodyRow>
+						<TableBodyCell>Power Factor</TableBodyCell>
+						<TableBodyCell><Number number={phase.power_factor} /></TableBodyCell>
+					</TableBodyRow>
+				</TableBody>
+			</Table>
+		</TabItem>
+	{/each}
+</Tabs>
 
 <style lang="postcss">
-	div.container {
-		@apply flex flex-col justify-around items-center;
-		@apply dark:bg-gray-900 dark:text-white;
-		@apply leading-loose h-screen pb-24;
+	.gauges {
+		@apply flex flex-wrap justify-between w-3/4;
 	}
-
-	#sveltekit {
-		@apply cursor-pointer;
-		@apply from-[#FE5858] via-[#FC9842] to-[#eb9927];
-	}
-
-	#tailwind {
-		@apply cursor-pointer;
-		@apply from-green-400 via-blue-500 to-indigo-500;
-	}
-	table {
-		@apply mx-2;
-	}
-	td {
-		@apply py-2 px-4 border;
-	}
-	th {
-		@apply py-2 px-4 bg-gray-200;
+	.gauges div {
+		@apply w-1/3 px-6;
 	}
 </style>

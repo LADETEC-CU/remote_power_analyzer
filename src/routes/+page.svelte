@@ -3,7 +3,7 @@
 	import '@carbon/charts-svelte/styles.css';
 	import Number from '$components/Number.svelte';
 	import Clock from '$components/Clock.svelte';
-	import Ampmeter from '$lib/components/Ampmeter.svelte';
+	import Ampmeter from '$components/Ampmeter.svelte';
 
 	import {
 		Tabs,

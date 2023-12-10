@@ -10,7 +10,7 @@ url = "http://localhost:5173/api/sensor"
 def generate_phase_data():
     voltage = random.uniform(108, 120)
     current = random.uniform(0, 25)
-    pf = random.uniform(0.6, 0.9)
+    pf = random.uniform(0.6, 1)
     pa = voltage*current
     power = pa*pf
     pr = (pa**2-power**2)**0.5

@@ -1,11 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import '@carbon/charts-svelte/styles.css';
 	import Number from '$components/Number.svelte';
 	import Clock from '$components/Clock.svelte';
-	import CounterButton from '$components/CounterButton.svelte';
+	import Ampmeter from '$lib/components/Ampmeter.svelte';
 	/** @type {import('./$types').PageData} */
 	import { invalidate } from '$app/navigation';
+
 	export let data;
+	let i1 = 0;
+
+	$: i1 = data?.measurement.phases[0].current;
 
 	onMount(() => {
 		const interval = setInterval(() => {
@@ -26,9 +31,10 @@
 </svelte:head>
 
 <div class="container">
-	<CounterButton />
-
 	<Clock />
+	<div class="flex gauges">
+		<Ampmeter current={i1} canvasId="I1_gauge" />
+	</div>
 
 	<!-- {data?.measurement.sample.createdAt} -->
 	<div class="flex">

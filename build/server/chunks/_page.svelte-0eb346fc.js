@@ -2990,15 +2990,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
             return `<span slot="title">Phase ${escape(phase.phase)}</span>`;
           },
           default: () => {
-            return `<div class="md:flex"><div>${validate_component(Ampmeter, "Ampmeter").$$render(
-              $$result,
-              {
-                current: phase.current,
-                canvasId: `I${phase.phase}_gauge`
-              },
-              {},
-              {}
-            )}</div> <div class="md:w-3/4">${validate_component(Chart, "Chart").$$render(
+            return `<div class="md:grid md:grid-cols-4"><div class="lg:col-span-2 md:col-span-4">${validate_component(Chart, "Chart").$$render(
               $$result,
               {
                 data: data?.measurement.powerHistory[phase.phase],
@@ -3006,7 +2998,15 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
               },
               {},
               {}
-            )} </div></div> ${validate_component(Table, "Table").$$render($$result, {}, {}, {
+            )}</div> <div class="lg:col-span-1 md:col-span-2 ">${validate_component(Ampmeter, "Ampmeter").$$render(
+              $$result,
+              {
+                current: phase.current,
+                canvasId: `I${phase.phase}_gauge`
+              },
+              {},
+              {}
+            )}</div> <div class="lg:col-span-1 md:col-span-2">${validate_component(Table, "Table").$$render($$result, {}, {}, {
               default: () => {
                 return `${validate_component(TableHead, "TableHead").$$render($$result, {}, {}, {
                   default: () => {
@@ -3098,7 +3098,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
                   }
                 })} `;
               }
-            })} `;
+            })} </div></div> `;
           }
         })}`;
       })}`;
@@ -3107,4 +3107,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 });
 
 export { Page as default };
-//# sourceMappingURL=_page.svelte-e0f8dea7.js.map
+//# sourceMappingURL=_page.svelte-0eb346fc.js.map

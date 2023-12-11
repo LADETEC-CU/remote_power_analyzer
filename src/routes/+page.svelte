@@ -24,7 +24,6 @@
 
 	function toggle_changed(evt) {
 		const url = `${base}/api/digital_output/${evt.target.dataset.id}/${evt.target.checked}`;
-		console.log(url)
 		fetch(url).catch((error) => {
 			console.log(error);
 			return [];
@@ -63,49 +62,51 @@
 	{#each data?.measurement.phases as phase, i}
 		<TabItem open={i < 1}>
 			<span slot="title">Phase {phase.phase}</span>
-			<div class="md:flex">
-				<div>
-					<Ampmeter current={phase.current} canvasId={`I${phase.phase}_gauge`} />
-				</div>
-				<div class="md:w-3/4">
+			<div class="md:grid md:grid-cols-4">
+				<div class="lg:col-span-2 md:col-span-4">
 					<Chart
 						data={data?.measurement.powerHistory[phase.phase]}
 						chartID={`chart_${phase.phase}`}
 					/>
 				</div>
+				<div class="lg:col-span-1 md:col-span-2 ">
+					<Ampmeter current={phase.current} canvasId={`I${phase.phase}_gauge`} />
+				</div>
+				<div class="lg:col-span-1 md:col-span-2">
+					<Table>
+						<TableHead>
+							<TableHeadCell>Parameter</TableHeadCell>
+							<TableHeadCell>Value</TableHeadCell>
+						</TableHead>
+						<TableBody class="divide-y">
+							<TableBodyRow>
+								<TableBodyCell>Voltage</TableBodyCell>
+								<TableBodyCell><Number number={phase.voltage} />V</TableBodyCell>
+							</TableBodyRow>
+							<TableBodyRow>
+								<TableBodyCell>Current</TableBodyCell>
+								<TableBodyCell><Number number={phase.current} />A</TableBodyCell>
+							</TableBodyRow>
+							<TableBodyRow>
+								<TableBodyCell>Power</TableBodyCell>
+								<TableBodyCell><Number number={phase.power} />W</TableBodyCell>
+							</TableBodyRow>
+							<TableBodyRow>
+								<TableBodyCell>Power Reactive</TableBodyCell>
+								<TableBodyCell><Number number={phase.power_r} />VAR</TableBodyCell>
+							</TableBodyRow>
+							<TableBodyRow>
+								<TableBodyCell>Power Apparent</TableBodyCell>
+								<TableBodyCell><Number number={phase.power_a} />VA</TableBodyCell>
+							</TableBodyRow>
+							<TableBodyRow>
+								<TableBodyCell>Power Factor</TableBodyCell>
+								<TableBodyCell><Number number={phase.power_factor} /></TableBodyCell>
+							</TableBodyRow>
+						</TableBody>
+					</Table>
 			</div>
-			<Table>
-				<TableHead>
-					<TableHeadCell>Parameter</TableHeadCell>
-					<TableHeadCell>Value</TableHeadCell>
-				</TableHead>
-				<TableBody class="divide-y">
-					<TableBodyRow>
-						<TableBodyCell>Voltage</TableBodyCell>
-						<TableBodyCell><Number number={phase.voltage} />V</TableBodyCell>
-					</TableBodyRow>
-					<TableBodyRow>
-						<TableBodyCell>Current</TableBodyCell>
-						<TableBodyCell><Number number={phase.current} />A</TableBodyCell>
-					</TableBodyRow>
-					<TableBodyRow>
-						<TableBodyCell>Power</TableBodyCell>
-						<TableBodyCell><Number number={phase.power} />W</TableBodyCell>
-					</TableBodyRow>
-					<TableBodyRow>
-						<TableBodyCell>Power Reactive</TableBodyCell>
-						<TableBodyCell><Number number={phase.power_r} />VAR</TableBodyCell>
-					</TableBodyRow>
-					<TableBodyRow>
-						<TableBodyCell>Power Apparent</TableBodyCell>
-						<TableBodyCell><Number number={phase.power_a} />VA</TableBodyCell>
-					</TableBodyRow>
-					<TableBodyRow>
-						<TableBodyCell>Power Factor</TableBodyCell>
-						<TableBodyCell><Number number={phase.power_factor} /></TableBodyCell>
-					</TableBodyRow>
-				</TableBody>
-			</Table>
+		</div>
 		</TabItem>
 	{/each}
 </Tabs>

@@ -2,7 +2,7 @@ import { c as create_ssr_component, s as setContext, v as validate_component, m 
 import { e as error, j as json, t as text, R as Redirect, H as HttpError, A as ActionFailure } from './chunks/index-2b68e648.js';
 import { w as writable, r as readable } from './chunks/index2-83bf4499.js';
 
-let base = "";
+let base = "/demo";
 let assets = base;
 const initial = { base, assets };
 function reset() {
@@ -176,7 +176,7 @@ const options = {
 		<div class="error">
 			<span class="status">` + status + '</span>\n			<div class="message">\n				<h1>' + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
   },
-  version_hash: "1c3dxgd"
+  version_hash: "fpp0os"
 };
 function get_hooks() {
   return {};

@@ -40,6 +40,7 @@ while True:
     if response.status_code == 200:
         # The data was successfully uploaded
         print("Data uploaded successfully")
+        print(response.json()['digital_outputs'])
     else:
         # An error occurred
         print("An error occurred: {}".format(response.status_code))

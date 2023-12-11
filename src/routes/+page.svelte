@@ -24,16 +24,10 @@
 
 	function toggle_changed(evt) {
 		const url = `api/digital_output/${evt.target.dataset.id}/${evt.target.checked}`;
-		console.log(url);
-		fetch(url)
-			.then((response) => response.json())
-			.then((data) => {
-				console.log(data);
-			})
-			.catch((error) => {
-				console.log(error);
-				return [];
-			});
+		fetch(url).catch((error) => {
+			console.log(error);
+			return [];
+		});
 		invalidate('app:sample'); // refresh interfase
 	}
 

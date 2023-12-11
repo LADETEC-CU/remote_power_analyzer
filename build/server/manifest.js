@@ -10,11 +10,11 @@ return {
 	assets: new Set(["favicon.png","robots.txt"]),
 	mimeTypes: {".png":"image/png",".txt":"text/plain"},
 	_: {
-		client: {"start":"_app/immutable/entry/start.0ded740a.js","app":"_app/immutable/entry/app.cdf06a8d.js","imports":["_app/immutable/entry/start.0ded740a.js","_app/immutable/chunks/scheduler.16cbcee3.js","_app/immutable/chunks/singletons.52b7ddf2.js","_app/immutable/entry/app.cdf06a8d.js","_app/immutable/chunks/scheduler.16cbcee3.js","_app/immutable/chunks/index.cb8f8d94.js"],"stylesheets":[],"fonts":[]},
+		client: {"start":"_app/immutable/entry/start.09271f94.js","app":"_app/immutable/entry/app.dd8f3997.js","imports":["_app/immutable/entry/start.09271f94.js","_app/immutable/chunks/scheduler.16cbcee3.js","_app/immutable/chunks/singletons.fbdc68e7.js","_app/immutable/entry/app.dd8f3997.js","_app/immutable/chunks/scheduler.16cbcee3.js","_app/immutable/chunks/index.cb8f8d94.js"],"stylesheets":[],"fonts":[]},
 		nodes: [
 			__memo(() => import('./chunks/0-12231f8c.js')),
-			__memo(() => import('./chunks/1-7d847a94.js')),
-			__memo(() => import('./chunks/2-6882062c.js'))
+			__memo(() => import('./chunks/1-82c0dec9.js')),
+			__memo(() => import('./chunks/2-74ae857c.js'))
 		],
 		routes: [
 			{

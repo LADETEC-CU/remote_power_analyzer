@@ -5,7 +5,7 @@
 	import Clock from '$components/Clock.svelte';
 	import Ampmeter from '$components/Ampmeter.svelte';
 	import Chart from '$components/Chart.svelte';
-
+	import { base } from "$app/paths";
 	import {
 		Tabs,
 		TabItem,
@@ -23,7 +23,8 @@
 	export let data;
 
 	function toggle_changed(evt) {
-		const url = `api/digital_output/${evt.target.dataset.id}/${evt.target.checked}`;
+		const url = `${base}/api/digital_output/${evt.target.dataset.id}/${evt.target.checked}`;
+		console.log(url)
 		fetch(url).catch((error) => {
 			console.log(error);
 			return [];

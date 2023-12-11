@@ -4,7 +4,8 @@ import random
 from time import sleep
 
 # Define the URL for the API endpoint
-url = "http://localhost:5173/api/sensor"
+url = "https://www.ladetec.com/demo/api/sensor"
+# url = "http://localhost:5173/api/sensor"
 
 
 def generate_phase_data():

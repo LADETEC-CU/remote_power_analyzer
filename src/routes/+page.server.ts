@@ -16,11 +16,13 @@ export async function load({ params, depends }) {
 			}
 		});
 		const powerHistory = await get_power();
+		const digital_outputs = await db.digitalOutput.findMany();
 		return {
 			measurement: {
 				sample,
 				phases,
-				powerHistory
+				powerHistory,
+				digital_outputs
 			}
 		};
 	} catch (err) {

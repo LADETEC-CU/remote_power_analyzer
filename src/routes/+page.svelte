@@ -14,12 +14,28 @@
 		TableBodyCell,
 		TableBodyRow,
 		TableHead,
-		TableHeadCell
+		TableHeadCell,
+		Toggle
 	} from 'flowbite-svelte';
 	/** @type {import('./$types').PageData} */
 	import { invalidate } from '$app/navigation';
 
 	export let data;
+
+	function toggle_changed(evt) {
+		const url = `api/digital_output/${evt.target.dataset.id}/${evt.target.checked}`;
+		console.log(url);
+		fetch(url)
+			.then((response) => response.json())
+			.then((data) => {
+				console.log(data);
+			})
+			.catch((error) => {
+				console.log(error);
+				return [];
+			});
+		invalidate('app:sample'); // refresh interfase
+	}
 
 	onMount(() => {
 		const interval = setInterval(() => {
@@ -40,6 +56,14 @@
 </svelte:head>
 
 <Clock />
+<div class="md:flex justify-center">
+	{#each data?.measurement.digital_outputs as output}
+		<Toggle class="p-4" checked={output.value} on:change={toggle_changed} data-id={output.id}
+			>{output.name}</Toggle
+		>
+	{/each}
+</div>
+
 <Tabs tabStype="full">
 	{#each data?.measurement.phases as phase, i}
 		<TabItem open={i < 1}>

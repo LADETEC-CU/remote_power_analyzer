@@ -56,7 +56,7 @@
 </svelte:head>
 
 <Clock />
-<div class="md:flex justify-center">
+<div class="md:flex justify-center sm:px-8 md:p-0">
 	{#each data?.measurement.digital_outputs as output}
 		<Toggle class="p-4" checked={output.value} on:change={toggle_changed} data-id={output.id}
 			>{output.name}</Toggle

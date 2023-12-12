@@ -5,7 +5,7 @@
 	import Clock from '$components/Clock.svelte';
 	import Ampmeter from '$components/Ampmeter.svelte';
 	import Chart from '$components/Chart.svelte';
-	import { base } from "$app/paths";
+	import { base } from '$app/paths';
 	import {
 		Tabs,
 		TabItem,
@@ -41,11 +41,11 @@
 </script>
 
 <svelte:head>
-	<title>SvelteKit Template</title>
+	<title>Control Remoto</title>
 
 	<meta
 		name="description"
-		content="An opinionated SvelteKit template complete with Tailwind, PlayWright, Vitest, and Husky pre-installed"
+		content="Un sistema para la supervición de remota del consmo de energía. Incluye el encendido y apagado de cargas eléctricas."
 	/>
 </svelte:head>
 
@@ -60,8 +60,8 @@
 
 <Tabs tabStype="full">
 	{#each data?.measurement.phases as phase, i}
-		<TabItem open={i < 1}>
-			<span slot="title">Phase {phase.phase}</span>
+		<TabItem open={i === 1}>
+			<span slot="title">Fase {phase.phase}</span>
 			<div class="md:grid md:grid-cols-4">
 				<div class="lg:col-span-2 md:col-span-4">
 					<Chart
@@ -69,44 +69,44 @@
 						chartID={`chart_${phase.phase}`}
 					/>
 				</div>
-				<div class="lg:col-span-1 md:col-span-2 ">
+				<div class="lg:col-span-1 md:col-span-2">
 					<Ampmeter current={phase.current} canvasId={`I${phase.phase}_gauge`} />
 				</div>
 				<div class="lg:col-span-1 md:col-span-2">
 					<Table>
 						<TableHead>
-							<TableHeadCell>Parameter</TableHeadCell>
-							<TableHeadCell>Value</TableHeadCell>
+							<TableHeadCell>Parámetro</TableHeadCell>
+							<TableHeadCell>Valor</TableHeadCell>
 						</TableHead>
 						<TableBody class="divide-y">
 							<TableBodyRow>
-								<TableBodyCell>Voltage</TableBodyCell>
+								<TableBodyCell>Voltaje</TableBodyCell>
 								<TableBodyCell><Number number={phase.voltage} />V</TableBodyCell>
 							</TableBodyRow>
 							<TableBodyRow>
-								<TableBodyCell>Current</TableBodyCell>
+								<TableBodyCell>Corriente</TableBodyCell>
 								<TableBodyCell><Number number={phase.current} />A</TableBodyCell>
 							</TableBodyRow>
 							<TableBodyRow>
-								<TableBodyCell>Power</TableBodyCell>
+								<TableBodyCell>Potencia</TableBodyCell>
 								<TableBodyCell><Number number={phase.power} />W</TableBodyCell>
 							</TableBodyRow>
 							<TableBodyRow>
-								<TableBodyCell>Power Reactive</TableBodyCell>
+								<TableBodyCell>Potencia Ractiva</TableBodyCell>
 								<TableBodyCell><Number number={phase.power_r} />VAR</TableBodyCell>
 							</TableBodyRow>
 							<TableBodyRow>
-								<TableBodyCell>Power Apparent</TableBodyCell>
+								<TableBodyCell>Potencia Aparente</TableBodyCell>
 								<TableBodyCell><Number number={phase.power_a} />VA</TableBodyCell>
 							</TableBodyRow>
 							<TableBodyRow>
-								<TableBodyCell>Power Factor</TableBodyCell>
+								<TableBodyCell>Factor de Potencia</TableBodyCell>
 								<TableBodyCell><Number number={phase.power_factor} /></TableBodyCell>
 							</TableBodyRow>
 						</TableBody>
 					</Table>
+				</div>
 			</div>
-		</div>
 		</TabItem>
 	{/each}
 </Tabs>

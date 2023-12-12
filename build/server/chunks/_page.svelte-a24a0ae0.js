@@ -2967,7 +2967,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   let { data } = $$props;
   if ($$props.data === void 0 && $$bindings.data && data !== void 0)
     $$bindings.data(data);
-  return `${$$result.head += `<!-- HEAD_svelte-1do2l_START -->${$$result.title = `<title>SvelteKit Template</title>`, ""}<meta name="description" content="An opinionated SvelteKit template complete with Tailwind, PlayWright, Vitest, and Husky pre-installed"><!-- HEAD_svelte-1do2l_END -->`, ""} ${validate_component(Clock, "Clock").$$render($$result, {}, {}, {})} <div class="md:flex justify-center sm:px-8 md:p-0">${each(data?.measurement.digital_outputs, (output) => {
+  return `${$$result.head += `<!-- HEAD_svelte-ldfc8x_START -->${$$result.title = `<title>Control Remoto</title>`, ""}<meta name="description" content="Un sistema para la supervición de remota del consmo de energía. Incluye el encendido y apagado de cargas eléctricas."><!-- HEAD_svelte-ldfc8x_END -->`, ""} ${validate_component(Clock, "Clock").$$render($$result, {}, {}, {})} <div class="md:flex justify-center sm:px-8 md:p-0">${each(data?.measurement.digital_outputs, (output) => {
     return `${validate_component(Toggle, "Toggle").$$render(
       $$result,
       {
@@ -2985,9 +2985,9 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   })}</div> ${validate_component(Tabs, "Tabs").$$render($$result, { tabStype: "full" }, {}, {
     default: () => {
       return `${each(data?.measurement.phases, (phase, i) => {
-        return `${validate_component(TabItem, "TabItem").$$render($$result, { open: i < 1 }, {}, {
+        return `${validate_component(TabItem, "TabItem").$$render($$result, { open: i === 1 }, {}, {
           title: () => {
-            return `<span slot="title">Phase ${escape(phase.phase)}</span>`;
+            return `<span slot="title">Fase ${escape(phase.phase)}</span>`;
           },
           default: () => {
             return `<div class="md:grid md:grid-cols-4"><div class="lg:col-span-2 md:col-span-4">${validate_component(Chart, "Chart").$$render(
@@ -2998,7 +2998,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
               },
               {},
               {}
-            )}</div> <div class="lg:col-span-1 md:col-span-2 ">${validate_component(Ampmeter, "Ampmeter").$$render(
+            )}</div> <div class="lg:col-span-1 md:col-span-2">${validate_component(Ampmeter, "Ampmeter").$$render(
               $$result,
               {
                 current: phase.current,
@@ -3012,11 +3012,11 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
                   default: () => {
                     return `${validate_component(TableHeadCell, "TableHeadCell").$$render($$result, {}, {}, {
                       default: () => {
-                        return `Parameter`;
+                        return `Parámetro`;
                       }
                     })} ${validate_component(TableHeadCell, "TableHeadCell").$$render($$result, {}, {}, {
                       default: () => {
-                        return `Value`;
+                        return `Valor`;
                       }
                     })} `;
                   }
@@ -3026,7 +3026,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
                       default: () => {
                         return `${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
-                            return `Voltage`;
+                            return `Voltaje`;
                           }
                         })} ${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
@@ -3038,7 +3038,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
                       default: () => {
                         return `${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
-                            return `Current`;
+                            return `Corriente`;
                           }
                         })} ${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
@@ -3050,7 +3050,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
                       default: () => {
                         return `${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
-                            return `Power`;
+                            return `Potencia`;
                           }
                         })} ${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
@@ -3062,7 +3062,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
                       default: () => {
                         return `${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
-                            return `Power Reactive`;
+                            return `Potencia Ractiva`;
                           }
                         })} ${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
@@ -3074,7 +3074,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
                       default: () => {
                         return `${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
-                            return `Power Apparent`;
+                            return `Potencia Aparente`;
                           }
                         })} ${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
@@ -3086,7 +3086,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
                       default: () => {
                         return `${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
-                            return `Power Factor`;
+                            return `Factor de Potencia`;
                           }
                         })} ${validate_component(TableBodyCell, "TableBodyCell").$$render($$result, {}, {}, {
                           default: () => {
@@ -3107,4 +3107,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 });
 
 export { Page as default };
-//# sourceMappingURL=_page.svelte-0eb346fc.js.map
+//# sourceMappingURL=_page.svelte-a24a0ae0.js.map

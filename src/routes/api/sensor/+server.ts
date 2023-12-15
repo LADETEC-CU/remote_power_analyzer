@@ -1,5 +1,18 @@
 import { json } from '@sveltejs/kit';
 import { db } from '$lib/db.server';
+import { event } from 'sveltekit-sse';
+import { once, EventEmitter } from 'events';
+
+const eventEmitter = new EventEmitter();
+
+export function GET() {
+	return event(async function run(emit) {
+		while (true) {
+			await once(eventEmitter, 'postReceived');
+			emit(`${Date.now()}`);
+		}
+	}).toResponse();
+}
 
 export async function POST(evt) {
 	const data = await evt.request.json();
@@ -18,6 +31,10 @@ export async function POST(evt) {
 		}
 	});
 	const digital_outputs = await db.digitalOutput.findMany();
+
+	// Emit an event when a POST request is received
+	eventEmitter.emit('postReceived');
+
 	// return success
 	return new Response(
 		JSON.stringify({

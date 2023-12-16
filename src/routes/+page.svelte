@@ -20,7 +20,10 @@
 	/** @type {import('./$types').PageData} */
 	import { invalidate } from '$app/navigation';
 	import { source } from 'sveltekit-sse';
-	const value = source('api/sensor');
+
+	source('api/sensor').subscribe(() => {
+		invalidate('app:sample');
+	});
 
 	export let data;
 
@@ -32,14 +35,6 @@
 		});
 		invalidate('app:sample'); // refresh interfase
 	}
-
-	// onMount(() => {
-	// 	const interval = setInterval(() => {
-	// 		invalidate('app:sample');
-	// 	}, 1000);
-
-	// 	return () => clearInterval(interval);
-	// });
 </script>
 
 <svelte:head>
@@ -50,7 +45,6 @@
 		content="Un sistema para la supervición de remota del consumo de energía. Incluye el encendido y apagado de cargas eléctricas."
 	/>
 </svelte:head>
-{$value}
 <Clock />
 <div class="md:flex justify-center sm:px-8 md:p-0">
 	{#each data?.measurement.digital_outputs as output}

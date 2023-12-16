@@ -71,12 +71,12 @@ var _page_server_ts = /*#__PURE__*/Object.freeze({
 
 const index = 2;
 let component_cache;
-const component = async () => component_cache ??= (await import('./_page.svelte-a24a0ae0.js')).default;
+const component = async () => component_cache ??= (await import('./_page.svelte-60db636f.js')).default;
 const universal_id = "src/routes/+page.ts";
 const server_id = "src/routes/+page.server.ts";
-const imports = ["_app/immutable/nodes/2.a8130409.js","_app/immutable/chunks/scheduler.16cbcee3.js","_app/immutable/chunks/index.cb8f8d94.js","_app/immutable/chunks/singletons.5c32fdbe.js"];
+const imports = ["_app/immutable/nodes/2.4c700c98.js","_app/immutable/chunks/scheduler.16cbcee3.js","_app/immutable/chunks/index.cb8f8d94.js","_app/immutable/chunks/singletons.ed577172.js"];
 const stylesheets = ["_app/immutable/assets/2.30edd2f1.css"];
 const fonts = [];
 
 export { component, fonts, imports, index, _page_server_ts as server, server_id, stylesheets, _page_ts as universal, universal_id };
-//# sourceMappingURL=2-54907ff4.js.map
+//# sourceMappingURL=2-b5eab89a.js.map

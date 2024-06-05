@@ -1,1 +1,0 @@
-{"version":3,"file":"db.server-1435d6b2.js","sources":["../../../.svelte-kit/adapter-node/chunks/db.server.js"],"sourcesContent":["import { PrismaClient } from \"@prisma/client\";\nconst db = new PrismaClient();\nexport {\n  db as d\n};\n"],"names":[],"mappings":";;AACK,MAAC,EAAE,GAAG,IAAI,YAAY;;;;"}

@@ -39,41 +39,41 @@
 	}
 </script>
 
-<main>
-	<h1>3-Phase Power Analyzer Data</h1>
-	<table>
+<main class="text-center p-4 max-w-lg mx-auto">
+	<h1 class="text-2xl mb-2">3-Phase Power Analyzer Data</h1>
+	<table class="w-full border-collapse mt-4">
 		<thead>
 			<tr>
-				<th>Parameter</th>
-				<th>Phase 1</th>
-				<th>Phase 2</th>
-				<th>Phase 3</th>
+				<th class="border p-2 bg-gray-200">Parameter</th>
+				<th class="border p-2 bg-gray-200">Phase 1</th>
+				<th class="border p-2 bg-gray-200">Phase 2</th>
+				<th class="border p-2 bg-gray-200">Phase 3</th>
 			</tr>
 		</thead>
 		<tbody>
 			<tr>
-				<td>Voltage (V)</td>
-				<td>{data.voltages.V1}</td>
-				<td>{data.voltages.V2}</td>
-				<td>{data.voltages.V3}</td>
+				<td class="border p-2">Voltage (V)</td>
+				<td class="border p-2">{data.voltages.V1}</td>
+				<td class="border p-2">{data.voltages.V2}</td>
+				<td class="border p-2">{data.voltages.V3}</td>
 			</tr>
 			<tr>
-				<td>Current (I)</td>
-				<td>{data.currents.I1}</td>
-				<td>{data.currents.I2}</td>
-				<td>{data.currents.I3}</td>
+				<td class="border p-2">Current (I)</td>
+				<td class="border p-2">{data.currents.I1}</td>
+				<td class="border p-2">{data.currents.I2}</td>
+				<td class="border p-2">{data.currents.I3}</td>
 			</tr>
 			<tr>
-				<td>Total Power</td>
-				<td colspan="3">{data.powers.total_power}</td>
+				<td class="border p-2">Total Power</td>
+				<td class="border p-2" colspan="3">{data.powers.total_power}</td>
 			</tr>
 			<tr>
-				<td>Reactive Power</td>
-				<td colspan="3">{data.powers.reactive_power}</td>
+				<td class="border p-2">Reactive Power</td>
+				<td class="border p-2" colspan="3">{data.powers.reactive_power}</td>
 			</tr>
 			<tr>
-				<td>Apparent Power</td>
-				<td colspan="3">{data.powers.apparent_power}</td>
+				<td class="border p-2">Apparent Power</td>
+				<td class="border p-2" colspan="3">{data.powers.apparent_power}</td>
 			</tr>
 		</tbody>
 	</table>
@@ -81,30 +81,6 @@
 
 <style lang="postcss">
 	:global(html) {
-		background-color: theme(colors.gray.100);
-	}
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 600px;
-		margin: 0 auto;
-	}
-	h1 {
-		font-size: 2em;
-		margin-bottom: 0.5em;
-	}
-	table {
-		width: 100%;
-		border-collapse: collapse;
-		margin-top: 1em;
-	}
-	th,
-	td {
-		border: 1px solid #ccc;
-		padding: 0.5em;
-		text-align: center;
-	}
-	th {
-		background-color: #f4f4f4;
+		@apply bg-gray-100;
 	}
 </style>

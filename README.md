@@ -54,11 +54,17 @@ Before you begin, ensure you have met the following requirements:
 
 To start the development server:
 
+Run the test websocket server (a replacement for the Esp32 board for testing purposes) in another terminal:
+
+```sh
+python3 src/tools/websocket_server.py
+```
+
 ```sh
 pnpm dev
 ```
 
-This will start the SvelteKit development server. You can view the application at `http://localhost:3000`.
+This will start the SvelteKit development server. You can view the application at `http://localhost:5173`.
 
 ## Building for Production
 

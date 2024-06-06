@@ -1,111 +1,110 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import '@carbon/charts-svelte/styles.css';
-	import Number from '$components/Number.svelte';
-	import Clock from '$components/Clock.svelte';
-	import Ampmeter from '$components/Ampmeter.svelte';
-	import Chart from '$components/Chart.svelte';
-	import { base } from '$app/paths';
-	import {
-		Tabs,
-		TabItem,
-		Table,
-		TableBody,
-		TableBodyCell,
-		TableBodyRow,
-		TableHead,
-		TableHeadCell,
-		Toggle
-	} from 'flowbite-svelte';
-	/** @type {import('./$types').PageData} */
-	import { invalidate } from '$app/navigation';
-	import { source } from 'sveltekit-sse';
 
-	source('api/sensor').subscribe(() => {
-		invalidate('app:sample');
+	let socket: WebSocket;
+	let data = {
+		voltages: { V1: 0, V2: 0, V3: 0 },
+		currents: { I1: 0, I2: 0, I3: 0 },
+		powers: { total_power: 0, reactive_power: 0, apparent_power: 0 }
+	};
+
+	onMount(() => {
+		socket = new WebSocket('ws://localhost:8765');
+
+		socket.onopen = () => {
+			console.log('WebSocket connection established');
+			requestData();
+		};
+
+		socket.onmessage = (event) => {
+			data = JSON.parse(event.data);
+		};
+
+		socket.onclose = () => {
+			console.log('WebSocket connection closed');
+		};
+
+		return () => {
+			if (socket) {
+				socket.close();
+			}
+		};
 	});
 
-	export let data;
-
-	function toggle_changed(evt) {
-		const url = `${base}/api/digital_output/${evt.target.dataset.id}/${evt.target.checked}`;
-		fetch(url).catch((error) => {
-			console.log(error);
-			return [];
-		});
-		invalidate('app:sample'); // refresh interfase
+	function requestData() {
+		if (socket && socket.readyState === WebSocket.OPEN) {
+			socket.send('get_data');
+			setTimeout(requestData, 2000); // Request data every 2 seconds
+		}
 	}
 </script>
 
-<svelte:head>
-	<title>Control Remoto</title>
-
-	<meta
-		name="description"
-		content="Un sistema para la supervición de remota del consumo de energía. Incluye el encendido y apagado de cargas eléctricas."
-	/>
-</svelte:head>
-<Clock />
-<div class="md:flex justify-center sm:px-8 md:p-0">
-	{#each data?.measurement.digital_outputs as output}
-		<Toggle class="p-4" checked={output.value} on:change={toggle_changed} data-id={output.id}
-			>{output.name}</Toggle
-		>
-	{/each}
-</div>
-
-<Tabs tabStype="full">
-	{#each data?.measurement.phases as phase, i}
-		<TabItem open={i === 1}>
-			<span slot="title">Fase {phase.phase}</span>
-			<div class="md:grid md:grid-cols-4">
-				<div class="lg:col-span-2 md:col-span-4">
-					<Chart
-						data={data?.measurement.powerHistory[phase.phase]}
-						chartID={`chart_${phase.phase}`}
-					/>
-				</div>
-				<div class="lg:col-span-1 md:col-span-2">
-					<Ampmeter current={phase.current} canvasId={`I${phase.phase}_gauge`} />
-				</div>
-				<div class="lg:col-span-1 md:col-span-2">
-					<Table>
-						<TableHead>
-							<TableHeadCell>Parámetro</TableHeadCell>
-							<TableHeadCell>Valor</TableHeadCell>
-						</TableHead>
-						<TableBody class="divide-y">
-							<TableBodyRow>
-								<TableBodyCell>Voltaje</TableBodyCell>
-								<TableBodyCell><Number number={phase.voltage} />V</TableBodyCell>
-							</TableBodyRow>
-							<TableBodyRow>
-								<TableBodyCell>Corriente</TableBodyCell>
-								<TableBodyCell><Number number={phase.current} />A</TableBodyCell>
-							</TableBodyRow>
-							<TableBodyRow>
-								<TableBodyCell>Potencia</TableBodyCell>
-								<TableBodyCell><Number number={phase.power} />W</TableBodyCell>
-							</TableBodyRow>
-							<TableBodyRow>
-								<TableBodyCell>Potencia Ractiva</TableBodyCell>
-								<TableBodyCell><Number number={phase.power_r} />VAR</TableBodyCell>
-							</TableBodyRow>
-							<TableBodyRow>
-								<TableBodyCell>Potencia Aparente</TableBodyCell>
-								<TableBodyCell><Number number={phase.power_a} />VA</TableBodyCell>
-							</TableBodyRow>
-							<TableBodyRow>
-								<TableBodyCell>Factor de Potencia</TableBodyCell>
-								<TableBodyCell><Number number={phase.power_factor} /></TableBodyCell>
-							</TableBodyRow>
-						</TableBody>
-					</Table>
-				</div>
-			</div>
-		</TabItem>
-	{/each}
-</Tabs>
+<main>
+	<h1>3-Phase Power Analyzer Data</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>Parameter</th>
+				<th>Phase 1</th>
+				<th>Phase 2</th>
+				<th>Phase 3</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>Voltage (V)</td>
+				<td>{data.voltages.V1}</td>
+				<td>{data.voltages.V2}</td>
+				<td>{data.voltages.V3}</td>
+			</tr>
+			<tr>
+				<td>Current (I)</td>
+				<td>{data.currents.I1}</td>
+				<td>{data.currents.I2}</td>
+				<td>{data.currents.I3}</td>
+			</tr>
+			<tr>
+				<td>Total Power</td>
+				<td colspan="3">{data.powers.total_power}</td>
+			</tr>
+			<tr>
+				<td>Reactive Power</td>
+				<td colspan="3">{data.powers.reactive_power}</td>
+			</tr>
+			<tr>
+				<td>Apparent Power</td>
+				<td colspan="3">{data.powers.apparent_power}</td>
+			</tr>
+		</tbody>
+	</table>
+</main>
 
 <style lang="postcss">
+	:global(html) {
+		background-color: theme(colors.gray.100);
+	}
+	main {
+		text-align: center;
+		padding: 1em;
+		max-width: 600px;
+		margin: 0 auto;
+	}
+	h1 {
+		font-size: 2em;
+		margin-bottom: 0.5em;
+	}
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin-top: 1em;
+	}
+	th,
+	td {
+		border: 1px solid #ccc;
+		padding: 0.5em;
+		text-align: center;
+	}
+	th {
+		background-color: #f4f4f4;
+	}
 </style>

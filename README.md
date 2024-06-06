@@ -52,13 +52,13 @@ Before you begin, ensure you have met the following requirements:
 
 ## Running the Project
 
-To start the development server:
-
 Run the test websocket server (a replacement for the Esp32 board for testing purposes) in another terminal:
 
 ```sh
 python3 src/tools/websocket_server.py
 ```
+
+To start the development server:
 
 ```sh
 pnpm dev

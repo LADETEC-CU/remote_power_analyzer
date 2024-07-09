@@ -1,124 +1,67 @@
-# Poker Analyzer Project
+# ESP32 SvelteKit - Create Amazing IoT Projects
 
-This project is a web application built with SvelteKit and TailwindCSS, using WebSockets to request and display poker analyzer data. The application is designed to be served by an ESP32 microcontroller using the static adapter. The project uses pnpm as the package manager.
+<div style="flex">
+<img src="/docs/media/Screenshot_light.png" style="height:320px"> 
+<img src="/docs/media/Screenshot_mobile.png" style="height:320px"> 
+</div>
 
-## Table of Contents
+A simple and extensible framework for ESP32 based IoT projects with a feature-rich, beautiful, and responsive front-end build with [Sveltekit](https://kit.svelte.dev/), [TailwindCSS](https://tailwindcss.com/) and [DaisyUI](https://daisyui.com/). This is a project template to get you started in no time backed by a powerful back end service, an amazing front end served from the ESP32 and an easy to use build chain to get everything going.
 
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Running the Project](#running-the-project)
-- [Building for Production](#building-for-production)
-- [Deploying to ESP32](#deploying-to-esp32)
-- [Folder Structure](#folder-structure)
-- [Contributing](#contributing)
-- [License](#license)
+It was forked from the fabulous [rjwats/esp8266-react](https://github.com/rjwats/esp8266-react) project, from where it inherited the mighty back end services.
 
-## Project Overview
-
-This project aims to provide real-time poker analysis using a web interface. It leverages the power of SvelteKit for the frontend, TailwindCSS for styling, and WebSockets for real-time data communication with the poker analyzer server. The application is designed to be lightweight and efficient, making it suitable for deployment on an ESP32 microcontroller.
+> **Tip**: This template repository is not meant to be used stand alone. If you're just looking for a WiFi manager there are plenty of options available. This is a starting point when you need a rich web UI.
 
 ## Features
 
-- Real-time poker data analysis
-- Responsive design with TailwindCSS
-- Fast and reactive UI with SvelteKit
-- WebSocket communication for live updates
-- Static site generation for easy deployment on ESP32
+### :butterfly: Beautiful UI powered by DaisyUI and TailwindCSS
 
-## Prerequisites
+Beautiful, responsive UI which works equally well on desktop and on mobile. Gently animated for a snappy and modern feeling without ever being obtrusive or in the way. Easy theming with DaisyUI and media-queries to respect the users wish for a light or dark theme.
 
-Before you begin, ensure you have met the following requirements:
+### :t-rex: Low Memory Footprint and Easy Customization by Courtesy of SvelteKit
 
-- Node.js and pnpm installed on your local machine
-- An ESP32 microcontroller for deployment
-- A poker analyzer server that supports WebSocket communication
+SvelteKit is ideally suited to be served from constrained devices like an ESP32. It's unique approach leads to very slim files. No bloatware like other popular JS frameworks. Not only the low memory footprint make it ideal but the developer experience is also outstanding letting you customize the front end with ease. Adapt and add functionality as you need it. The back end has you covered as well.
 
-## Installation
+### :telephone: Rich Communication Interfaces
 
-1. Clone the repository:
+Comes with a rich set of communication interfaces to cover most standard needs of an IoT application. Like MQTT client, HTTP RESTful API, a WebSocket based Event Socket and a classic Websocket Server. All communication channels are stateful and fully synchronized. Changes propagate and are communicated to all other participants. The states can be persisted on the file system as well. For accurate time keeping time can by synchronized over NTP.
 
-   ```sh
-   git clone https://github.com/yourusername/poker-analyzer-project.git
-   cd poker-analyzer-project
-   ```
+### :file_cabinet: WiFi Provisioning and Management
 
-2. Install dependencies using pnpm:
+Naturally ESP32 SvelteKit comes with rich features to manage all your WiFi needs. From pulling up an access point for provisioning or as fall back, to fully manage your WiFi networks. Scan for available networks and connect to them. Advanced configuration options like static IP are on board as well.
 
-   ```sh
-   pnpm install
-   ```
+### :old_key: Secured API and User Management
 
-## Running the Project
+Manage different user of your app with two authorization levels. An administrator and a guest user. Authenticate their API calls with a JWT token. Manage the user's profile from the admin interface. Use at own risk, as it is neither secure without the ability to use TLS/SSL encryption on the ESP32 server, nor very convenient, as only an admin can change passwords.
 
-Run the test websocket server (a replacement for the Esp32 board for testing purposes) in another terminal:
+### :airplane: OTA Upgrade Service
 
-```sh
-python3 src/tools/websocket_server.py
-```
+The framework can provide two different channels for Over-the-Air updates. Either by uploading a \*.bin file from the web interface. Or by pulling a firmware image from an update server. This is implemented with the github release page as an example. It is even possible to have different build environments at the same time and the Github OTA process pulls the correct binary.
 
-To start the development server:
+### :building_construction: Automated Build Chain
 
-```sh
-pnpm dev
-```
+The automated build chain takes out the pain and tears of getting all the bits and pieces play nice together. The repository contains a PlatformIO project at its heart. A SvelteKit project for the frontend code and a mkdocs project for the documentation go alongside. The PlatformIO build tools not only build the SvelteKit frontend with Vite, but also ensure that the build results are gzipped and find their way into the flash memory of the ESP32. You have two choices to serve the frontend either from the flash partition, or embedded into the firmware binary. The latter is much more friendly if your frontend code should be distributed OTA as well, leaving all configuration files intact.
 
-This will start the SvelteKit development server. You can view the application at `http://localhost:5173`.
+### :icecream: Compatible with all ESP32 Flavours
 
-## Building for Production
+The code runs on many variants of the ESP32 chip family. From the plain old ESP32, the ESP32-S3 and ESP32-C3. Other ESP32 variants might work, but haven't been tested. Sorry, no support for the older ESP8266. Go with one of the ESP32's instead.
 
-To build the project for production:
+## Visit the Project Site
 
-```sh
-pnpm build
-```
+[https://theelims.github.io/ESP32-sveltekit/](https://theelims.github.io/ESP32-sveltekit/)
 
-This will generate a static version of the site in the `build` directory, ready to be deployed on an ESP32 microcontroller.
+## Libraries Used
 
-## Deploying to ESP32
+- [SvelteKit](https://kit.svelte.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [DaisyUI](https://daisyui.com/)
+- [tabler ICONS](https://tabler-icons.io/)
+- [unplugin-icons](https://github.com/antfu/unplugin-icons)
+- [svelte-modals](https://svelte-modals.mattjennings.io/)
+- [svelte-dnd-list](https://github.com/tarb/svelte-dnd-list)
+- [ArduinoJson](https://github.com/bblanchon/ArduinoJson)
+- [PsychicHttp](https://github.com/hoeken/PsychicHttp)
+- [PsychicMqttClient](https://github.com/theelims/PsychicMqttClient)
 
-1. Ensure you have the necessary tools to flash the ESP32. You may use tools like [PlatformIO](https://platformio.org/) or [esptool](https://github.com/espressif/esptool).
+## Licensing
 
-2. Convert the `build` directory into a format suitable for the ESP32 filesystem (e.g., SPIFFS).
-
-3. Upload the filesystem image to the ESP32.
-
-4. Configure your ESP32 to serve the static files.
-
-Refer to the specific documentation for your ESP32 framework (e.g., Arduino, ESP-IDF) for detailed instructions on flashing the filesystem.
-
-## Folder Structure
-
-```plaintext
-poker-analyzer-project/
-├── src/
-│   ├── routes/
-│   │   ├── index.svelte
-│   │   └── ... (other routes)
-│   ├── lib/
-│   │   ├── components/
-│   │   └── stores/
-│   ├── assets/
-│   └── app.html
-├── static/
-├── build/
-├── package.json
-├── svelte.config.js
-├── tailwind.config.js
-└── ... (other configuration files)
-```
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and create a pull request with your changes. For major changes, please open an issue first to discuss what you would like to change.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+ESP32 SvelteKit is distributed with two licenses for different sections of the code. The back end code inherits the GNU LESSER GENERAL PUBLIC LICENSE Version 3 and is therefore distributed with said license. The front end code is distributed under the MIT License. See the [LICENSE](LICENSE) for a full text of both licenses.

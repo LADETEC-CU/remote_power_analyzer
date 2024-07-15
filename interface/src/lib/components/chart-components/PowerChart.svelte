@@ -83,10 +83,10 @@
     }
     
     decimalUnits = 0;
-    if (maxScale < 3) decimalUnits = 1;
-    if (maxScale < .3) decimalUnits = 2;
-    if (maxScale > 1 && (maxScale % 4) != 0) decimalUnits++;
-    if (maxScale > 1 && (maxScale % 2) != 0) decimalUnits++;
+    if (maxScale <= 10) decimalUnits = 1;
+    if (maxScale < 1) decimalUnits = 2;
+    // if (maxScale > 1 && (maxScale % 4) != 0) decimalUnits++;
+    // if (maxScale > 1 && (maxScale % 2) != 0) decimalUnits++;
 
     if (Qr / maxScale > 0.1) {
         yLedgend = 60;
@@ -95,17 +95,17 @@
         yLedgend = -60;
     } 
     
-    arrowP = 5 * Pr / maxScale;
+    arrowP = 7 * Pr / maxScale;
     if (Math.abs(arrowP) > 0.7) arrowP = Math.sign(arrowP) * 0.7;
-    arrowQ = 5 * Qr / maxScale;
+    arrowQ = 7 * Qr / maxScale;
     if (Math.abs(arrowQ) > 0.7) arrowQ = Math.sign(arrowQ) * 0.7;
-    arrowS = 5 * Sr / maxScale;
+    arrowS = 7 * Sr / maxScale;
     if (Math.abs(arrowS) > 0.7) arrowS = Math.sign(arrowS) * 0.7;
 
     if (Pr != 0) angRotateS = -Math.atan(Qr/Pr) * 180 / Math.PI;
     else angRotateS = - Math.sign(Qr) * 90;
     
-    // console.log(`${Qr.toFixed(2)} ${(Qr / maxScale).toFixed(2)} ${maxPower} ${maxScale}`);
+    // console.log(`${Qr.toFixed(2)} ${(arrowQ).toFixed(2)} ${maxPower} ${maxScale}`);
 
   }
   
@@ -134,13 +134,13 @@
             font-size = 7.5 
             dominant-baseline = "end"
             text-anchor = "middle"
-            >{((i-4)*maxScale/4).toFixed(0)}</text>
+            >{((i-4)*maxScale/4).toFixed(decimalUnits)}</text>
         {/if}
         <text class="grid-label" x={-2} y={r}
           font-size = 7.5 
           dominant-baseline = "middle"
           text-anchor = "end"
-          >{-((i-4)*maxScale/4).toFixed(0)}</text>
+          >{-((i-4)*maxScale/4).toFixed(decimalUnits)}</text>
       {/each}
   
     <text class="grid-label" x=112 y={-7}
@@ -155,18 +155,18 @@
 		>{unitsQ}</text>
     
     
-    <path class="Q" stroke-width = 2
-			d="M 0 0 L {100 * Qr / maxScale - 3} 0 l {-10*arrowQ} {3*arrowQ} l {10*arrowQ} {-3*arrowQ} l {-10*arrowQ} {-3*arrowQ}"
+    <path class="Q" stroke-width = {Math.abs(2*arrowQ/0.7)}
+			d="M 0 0 L {100 * Qr / maxScale - 4*arrowQ} 0 l {-10*arrowQ} {3*arrowQ} l {10*arrowQ} {-3*arrowQ} l {-10*arrowQ} {-3*arrowQ}"
       transform="rotate(-90) translate(0,{100 * Pr / maxScale})"
 			/>
 
-    <path class="S" stroke-width = 2
-			d="M 0 0 L {100 * Sr / maxScale - 3} 0 l {-10*arrowS} {3*arrowS} l {10*arrowS} {-3*arrowS} l {-10*arrowS} {-3*arrowS}"
+    <path class="S" stroke-width = {Math.abs(2*arrowS/0.7)}
+			d="M 0 0 L {100 * Sr / maxScale - 4*arrowS} 0 l {-10*arrowS} {3*arrowS} l {10*arrowS} {-3*arrowS} l {-10*arrowS} {-3*arrowS}"
       transform="rotate({angRotateS})"
 			/>
 
-    <path class="P" stroke-width = 2
-			d="M 0 0 L {100 * Pr / maxScale - 3} 0 l {-10*arrowP} {3*arrowP} l {10*arrowP} {-3*arrowP} l {-10*arrowP} {-3*arrowP}"		
+    <path class="P" stroke-width = {Math.abs(2*arrowP/0.7)}
+			d="M 0 0 L {100 * Pr / maxScale - 4*arrowP} 0 l {-10*arrowP} {3*arrowP} l {10*arrowP} {-3*arrowP} l {-10*arrowP} {-3*arrowP}"		
 			/>
 
     <text class="P-label" x=10 y={yLedgend - 25}

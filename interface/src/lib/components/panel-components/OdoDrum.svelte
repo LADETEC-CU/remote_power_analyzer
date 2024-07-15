@@ -1,7 +1,7 @@
 <script>
 // @ts-nocheck
 
-    import Number from "./Number.svelte";
+    import Number from "$lib/components/panel-components/Number.svelte";
     export let newNumber = 0;
     export let dure = 200;
 	export let color = "red";

@@ -2,7 +2,7 @@
 // @ts-nocheck
 
 
-	import OdoDrum from "./OdoDrum.svelte";
+	import OdoDrum from "$lib/components/panel-components/OdoDrum.svelte";
 	export let value;
 	export let nrDigits = 1;
 	export let dure = 200;

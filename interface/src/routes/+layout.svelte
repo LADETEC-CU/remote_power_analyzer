@@ -12,21 +12,18 @@
 	import { notifications } from '$lib/components/toasts/notifications';
 	import { fade } from 'svelte/transition';
 	import '../app.css';
-	import Menu from './menu.svelte';
-	import Statusbar from './statusbar.svelte';
-	import Login from './login.svelte';
+	import Menu from '$lib/components/old-project-components/menu.svelte';
+	import Statusbar from '$lib/components/old-project-components/statusbar.svelte';
+	import Login from '$lib/components/old-project-components/login.svelte';
 	import type { Analytics } from '$lib/types/models';
 	import type { RSSI } from '$lib/types/models';
 	import type { Battery } from '$lib/types/models';
 	import type { DownloadOTA } from '$lib/types/models';
 
-	import logo from '$lib/images/logo_ladetec.png';
+	export let data: LayoutData;
 
 	import Header from './Header.svelte';
 	import './styles.css';
-
-	
-	export let data: LayoutData;
 
 	onMount(async () => {
 		if ($user.bearer_token !== '') {
@@ -37,20 +34,15 @@
 			`ws://${window.location.host}/ws/events${ws_token}`,
 			$page.data.features.event_use_json
 		);
-
 		addEventListeners();
+		const element0 = document.getElementById('connect0');
+        if (element0) element0.hidden = true;
+		const element1 = document.getElementById('connect1');
+        if (element1) element1.hidden = true;
+		const element2 = document.getElementById('connect2');
+        if (element2) element2.hidden = true;
+        
 	});
-
-	// let count = 0;
-	// function logData() {
-	// 	console.log(`layout ${count}`);
-	// 	count++;
-	// 	setTimeout(logData, 2000);
-	// }
-	// onMount(() => {
-	// 	logData();
-	// });
-
 
 	onDestroy(() => {
 		removeEventListeners();
@@ -95,11 +87,11 @@
 	}
 
 	const handleOpen = () => {
-		notifications.success('Connection to device established', 5000);
+		notifications.success('Connection to device established', 2000);
 	};
 
 	const handleClose = () => {
-		notifications.error('Connection to device lost', 5000);
+		notifications.error('Connection to device lost', 2000);
 		telemetry.setRSSI({ rssi: 0, ssid: '' });
 	};
 
@@ -108,16 +100,16 @@
 	const handleNotification = (data: any) => {
 		switch (data.type) {
 			case 'info':
-				notifications.info(data.message, 5000);
+				notifications.info(data.message, 2000);
 				break;
 			case 'warning':
-				notifications.warning(data.message, 5000);
+				notifications.warning(data.message, 2000);
 				break;
 			case 'error':
-				notifications.error(data.message, 5000);
+				notifications.error(data.message, 2000);
 				break;
 			case 'success':
-				notifications.success(data.message, 5000);
+				notifications.success(data.message, 2000);
 				break;
 			default:
 				break;
@@ -139,12 +131,9 @@
 	<title>{$page.data.title}</title>
 </svelte:head>
 
-
-
 {#if $page.data.features.security && $user.bearer_token === ''}
 	<Login />
 {:else}
-
 	<!-- <div class="drawer lg:drawer-open"> -->
 		<!-- <input id="main-menu" type="checkbox" class="drawer-toggle" bind:checked={menuOpen} /> -->
 		<!-- <div class="drawer-content flex flex-col"> -->
@@ -155,16 +144,15 @@
 			<!-- <slot /> -->
 		<!-- </div> -->
 		<!-- Side Navigation -->
-		<!-- <div class="drawer-side z-30 shadow-lg"> -->
-			<!-- <label for="main-menu" class="drawer-overlay" /> -->
-			<!-- <Menu -->
-				<!-- on:menuClicked={() => { -->
-					<!-- menuOpen = false; -->
-				<!-- }} -->
-			<!-- /> -->
-		<!-- </div> -->
+		<!-- <div class="drawer-side z-30 shadow-lg">
+			<label for="main-menu" class="drawer-overlay" />
+			<Menu
+				on:menuClicked={() => {
+					menuOpen = false;
+				}}
+			/>
+		</div> -->
 	<!-- </div> -->
-
 
 	<div class="app">
 		<Header />
@@ -175,8 +163,6 @@
 	
 	
 	</div>
-
-
 {/if}
 
 <!-- <Modals> -->
@@ -189,9 +175,7 @@
 	<!-- /> -->
 <!-- </Modals> -->
 
-<!-- <Toast /> -->
-
-
+<Toast />
 
 <style>
 	
@@ -215,92 +199,6 @@
 
 	}
 
-	header {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.corner {
-		width: 3em;
-		height: 3em;
-	}
-
-	.corner a {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-	}
-
-	.corner img {
-		width: 2em;
-		height: 2em;
-		object-fit: contain;
-	}
-
-	nav {
-		display: flex;
-		justify-content: center;
-		--background: rgba(255, 255, 255, 0.7);
-	}
-
-	svg {
-		width: 2em;
-		height: 3em;
-		display: block;
-	}
-
-	path {
-		fill: var(--background);
-	}
-
-	ul {
-		position: relative;
-		padding: 0;
-		margin: 0;
-		height: 3em;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		list-style: none;
-		background: var(--background);
-		background-size: contain;
-	}
-
-	li {
-		position: relative;
-		height: 100%;
-	}
-
-	li[aria-current='page']::before {
-		--size: 6px;
-		content: '';
-		width: 0;
-		height: 0;
-		position: absolute;
-		top: 0;
-		left: calc(50% - var(--size));
-		border: var(--size) solid transparent;
-		border-top: var(--size) solid var(--color-theme-1);
-	}
-
-	nav a {
-		display: flex;
-		height: 100%;
-		align-items: center;
-		padding: 0 0.5rem;
-		color: var(--color-text);
-		font-weight: 700;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		text-decoration: none;
-		transition: color 0.2s linear;
-	}
-
-	a:hover {
-		color: var(--color-theme-1);
-	}
+	
 </style>
 

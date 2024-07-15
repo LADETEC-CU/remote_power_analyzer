@@ -1,3 +1,18 @@
+<!-- <script lang="ts">
+	import type { PageData } from '../$types';
+	import Demo from './Demo.svelte';
+
+	export let data: PageData;
+</script>
+
+<div
+	class="mx-0 my-1 flex flex-col space-y-4
+     sm:mx-8 sm:my-8"
+>
+	<Demo />
+</div> -->
+
+
 <script lang="ts">
 
 	// import Ampmeter from "./Ampmeter.svelte";
@@ -14,17 +29,16 @@
 	import { socket } from '$lib/stores/socket';
 	import type { LightState } from '$lib/types/models';
 
-	import Voltmeter from "./Voltmeter.svelte";
-	import Freqmeter from "./Freqmeter.svelte";
-	import StatusLedPanel from './StatusLedPanel.svelte';
-	import ODO from "./ODO.svelte"
-	import CarThermometer from "./CarThermometer.svelte";
-	import CarVoltmeter from "./CarVoltmeter.svelte";
-	import CarOilPressuremeter from "./CarOilPressuremeter.svelte";
+	import Voltmeter from "$lib/components/panel-components/Voltmeter.svelte";
+	import Freqmeter from "$lib/components/panel-components/Freqmeter.svelte";
+	import StatusLedPanel from '$lib/components/panel-components/StatusLedPanel.svelte';
+	import ODO from "$lib/components/panel-components/ODO.svelte"
+	import CarThermometer from "$lib/components/panel-components/CarThermometer.svelte";
+	import CarVoltmeter from "$lib/components/panel-components/CarVoltmeter.svelte";
+	import CarOilPressuremeter from "$lib/components/panel-components/CarOilPressuremeter.svelte";
 
-	let simulation = false;
-
-	let lightState: LightState = {
+	// let lightState: LightState = {
+	let lightState = {
 		led_on: false,
 		VA: 0,
 		VB: 0,
@@ -89,10 +103,6 @@
 	$: batteryVoltage = 0;
 	$: oilPressure = -0.3;
 	
-	let area: HTMLDivElement;
-    let a_ancho;
-    let a_alto;
-	
 	$: voltageToShow = 0;
 	$: voltages = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
@@ -101,14 +111,9 @@
 	let workingHours = 0;
 	$: hoursRunning = 0;
 	$: hoursRunningDecimal = 0;
-	let nrd = 5;
 	let dure = 200;
 
-	$: ancho = 140;
-	$: alto = 140;
-
 	// for volt/amp meter
-	let x0 = 0;
 	let max = 300;
 	let units = "V";
 	let varName = "Va";
@@ -119,72 +124,42 @@
 				    'rgb(255, 183, 113)', 'rgb(255, 188, 113)', 'rgb(255, 193, 113)'];
 	let selected = colors[0];
 
+	let isSocketConnected = false;
+	let timeout;
     
 	function intermdiateCalcutation() {
-		if (simulation) {
-			voltages[0] = 100;
-			voltages[1] = 120;
-			voltages[2] = 130;
-			voltages[3] = 180;
-			voltages[4] = 200;
-			voltages[5] = 220;
-			voltages[6] = 2;
-			voltages[7] = 15;
-			voltages[8] = 28;
-			
-			mag = voltages[voltageToShow];
-			f = 55;
+		
+		voltages[0] = lightState.VA;
+		voltages[1] = lightState.VB;
+		voltages[2] = lightState.VC;
+		voltages[3] = lightState.UAB;
+		voltages[4] = lightState.UBC;
+		voltages[5] = lightState.UCA;
+		voltages[6] = lightState.IA;
+		voltages[7] = lightState.IB;
+		voltages[8] = lightState.IC;
+		
+		mag = voltages[voltageToShow];
+		f = lightState.fA;
 
-			ledStatus[0] = true;
-			ledStatus[1] = true;
-			ledStatus[2] = true;
-			ledStatus[3] = false;
-			ledStatus[4] = false;
-			ledStatus[5] = false;
-			ledStatus[6] = false;
-			ledStatus[7] = false;
-			ledStatus[8] = false;
-			ledStatus[9] = false;
+		ledStatus[0] = lightState.isMainPower;
+		ledStatus[1] = lightState.isWorking;
+		ledStatus[2] = lightState.isBatteryOk;
+		ledStatus[3] = lightState.isBatteryLow;
+		ledStatus[4] = lightState.isBatteryHigh;
+		ledStatus[5] = lightState.isStartFail;
+		ledStatus[6] = lightState.isHighTemp;
+		ledStatus[7] = lightState.isLowOilPress;
+		ledStatus[8] = lightState.isOverVoltage;
+		ledStatus[9] = lightState.isOverSpeed;
 
-			workingHours += 0.1;
-			hoursRunning = Math.floor(workingHours);
-			hoursRunningDecimal = (workingHours * 10) % 10;
+		hoursRunning = Math.floor(lightState.workingHours);
+		hoursRunningDecimal = (lightState.workingHours * 10) % 10;
 
-			temperature = 30;
-			batteryVoltage = 11.8;
-			oilPressure = 3;
-		} else {
-			voltages[0] = lightState.VA;
-			voltages[1] = lightState.VB;
-			voltages[2] = lightState.VC;
-			voltages[3] = lightState.UAB;
-			voltages[4] = lightState.UBC;
-			voltages[5] = lightState.UCA;
-			voltages[6] = lightState.IA;
-			voltages[7] = lightState.IB;
-			voltages[8] = lightState.IC;
-			
-			mag = voltages[voltageToShow];
-			f = lightState.fA;
-
-			ledStatus[0] = lightState.isMainPower;
-			ledStatus[1] = lightState.isWorking;
-			ledStatus[2] = lightState.isBatteryOk;
-			ledStatus[3] = lightState.isBatteryLow;
-			ledStatus[4] = lightState.isBatteryHigh;
-			ledStatus[5] = lightState.isStartFail;
-			ledStatus[6] = lightState.isHighTemp;
-			ledStatus[7] = lightState.isLowOilPress;
-			ledStatus[8] = lightState.isOverVoltage;
-			ledStatus[9] = lightState.isOverSpeed;
-
-			hoursRunning = Math.floor(lightState.workingHours);
-			hoursRunningDecimal = (lightState.workingHours * 10) % 10;
-
-			temperature = lightState.temperature;
-			batteryVoltage = lightState.batteryLevel;
-			oilPressure = lightState.oilPressure;
-		}
+		temperature = lightState.temperature;
+		batteryVoltage = lightState.batteryLevel;
+		oilPressure = lightState.oilPressure;
+	
 	}
 
 	async function getLightstate() {
@@ -199,38 +174,36 @@
 			const light = await response.json();
 			lightState = light;
 			intermdiateCalcutation();
-
-			console.log("gggggggetLightState");
-
 		} catch (error) {
 			console.error('Error:', error);
 		}
 		return;
 	}
 
-	onMount(()=> {
-		if (simulation) {
-			
-		} else {
-			socket.on<LightState>('led', (merterData) => {
-				lightState = merterData;
-				console.log("se pidio datos");
-				console.log(lightState);
-				// console.log(`${oilPressure} ${hoursRunning} ${hoursRunningDecimal}`);
-				intermdiateCalcutation();
-			});
+	function requestData() {
+		if (!isSocketConnected) {
 			getLightstate();
 		}
-		intermdiateCalcutation();
-		a_ancho = area.clientWidth;
-		a_alto = area.clientHeight;
-		// console.log(`Ancho: ${a_ancho}px, Alto: ${a_alto}px`);
-		x0 = (a_ancho - ancho) / 2;
+		isSocketConnected = false;
+		timeout = setTimeout(requestData, 2500);
+	}
+
+	onMount(()=> {
+		console.log('entrando al  page');
+		socket.on<LightState>('led', (merterData) => {
+			lightState = merterData;
+			isSocketConnected = true;
+			// console.log("se pidio datos al  Panel");
+			// console.log(lightState);
+			// console.log(`${oilPressure} ${hoursRunning} ${hoursRunningDecimal}`);
+			intermdiateCalcutation(); 
+		});
+		timeout = setTimeout(requestData, 500);
 	});
 
 	onDestroy(() => {
-		if (!simulation) socket.off('led');
-		console.log('destroyed');
+		socket.off('led');
+		clearTimeout(timeout);
 	});
 
 </script>
@@ -239,12 +212,8 @@
 
 <!-- VoltMeter and frequencyMeter -->
 <div class="container">
-    <div class="instrument" bind:this={area} style="flex: 1;">
-		<Voltmeter magnitude={mag} svgWidth={ancho} svgHeight={alto} x0={x0} varName={varName} units={units} needleColor={selected} maxScale={max}/>
-    </div>
-    <div class="instrument" style="flex: 1;">
-        <Freqmeter magnitude={f} svgWidth={ancho} svgHeight={alto} units={["Hz", "RPM"]} minScale={45} maxScale={70} scaleLargeDivisions={5} scaleSmallDivisions={25} decimalPlaces={1} x0={x0} needleColor="gray"/>
-    </div>
+	<Voltmeter magnitude={mag} svgWidth={140} svgHeight={140} varName={varName} units={units} needleColor={selected} maxScale={max}/>
+	<Freqmeter magnitude={f} svgWidth={140} svgHeight={140} units={["Hz", "RPM"]} minScale={45} maxScale={70} scaleLargeDivisions={5} scaleSmallDivisions={25} decimalPlaces={1} needleColor="gray"/>
 </div>
 
 <!-- Variable selector -->
@@ -289,9 +258,9 @@
 <!-- instruments -->
 <div class="car-instruments">
     <div style="display: flex;">
-		<CarThermometer temperature={temperature}/>
-		<CarVoltmeter voltage={batteryVoltage}/>
-		<CarOilPressuremeter oilPressure={oilPressure}/>
+		<CarThermometer temperature={temperature} alarm={lightState.isHighTemp}/>
+		<CarVoltmeter voltage={batteryVoltage} alarm={lightState.isBatteryLow || lightState.isBatteryHigh}/>
+		<CarOilPressuremeter oilPressure={oilPressure} alarm={lightState.isLowOilPress}/>
 	</div>
 </div>
 
@@ -304,17 +273,13 @@
 	}
 
 	.container {
-        display: flex;
-        justify-content: center;
-		margin-top: 15px;
+        margin-top: 10px;
+		margin-left: 5%;
+		margin-right: 0%;
+		display: flex;
+		justify-content: space-between;
+		width: 90%;
     }
-
-	.instrument {
-		display: grid;
-		grid-template-columns: repeat(7, 2fr);
-		grid-gap: 5px;
-		max-width: 800px;
-	}
 
 	.variable-selector {
 		margin-top: 10px;
@@ -327,7 +292,7 @@
 		flex: 0;
 		min-width: 32px;
 		max-width: 50px;
-		margin: 0 3px; /* Adjust margin as needed */
+		margin: 0 2px; /* Adjust margin as needed */
   	}
 
 	button {

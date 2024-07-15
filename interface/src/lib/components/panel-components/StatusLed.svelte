@@ -26,7 +26,7 @@
         height: 20px;
         border-radius: 50%;
         background-color: gray;
-        margin-right: 10px;
+        margin-right: 7px;
     }
 
     .ledName {

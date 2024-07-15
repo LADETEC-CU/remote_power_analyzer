@@ -4,14 +4,18 @@
 	import { spring } from 'svelte/motion';
 
     export let oilPressure = 4;
+	export let alarm = false;
+
 	let oilPressureNeedle = 4;
+	let color = "rgb(255, 71, 72)";
 
 	$: {
+		if (alarm) color = "rgb(255, 71, 71)"; else color = "rgb(204, 245, 135)";
 		oilPressureNeedle = oilPressure;
-		if (oilPressureNeedle < -0.5)
-			oilPressureNeedle = -0.5;
-		else if (oilPressureNeedle > 6.5)
-			oilPressureNeedle = 6.5;
+		if (oilPressureNeedle < -0.9)
+			oilPressureNeedle = -0.9;
+		else if (oilPressureNeedle > 6.9)
+			oilPressureNeedle = 6.9;
 	}
 
 	let angle1 = (90 - 13.9*(oilPressureNeedle - 3)) * Math.PI / 180;;
@@ -44,18 +48,16 @@
         <clipPath id="cut-needle-oil">
             <path 
                 d="
-                    M -45, 25
-					L  45, 25
-					Q  51.5 25 55 20
+                    M -45, 30
+					L  45, 30
+					Q  51.5 30 55 25
 					L  68 -5
 					Q  70 -9 68 -12
 					Q   0 -68 -68 -12
 					Q  -70 -9 -68 -5
-					L  -55 20
-					Q  -51.5 25 -45 25 
+					L  -55 25
+					Q  -51.5 30 -45 30 
 					"
-					fill="red"
-					stroke="red"
 			/>
         </clipPath>
     </defs>
@@ -65,47 +67,47 @@
 	
     <path class="scale-background"
 		d="
-			M -45, 25
-			L  45, 25
-			Q  51.5 25 55 20
+			M -45, 30
+			L  45, 30
+			Q  51.5 30 55 25
 			L  68 -5
 			Q  70 -9 68 -12
 			Q   0 -68 -68 -12
 			Q  -70 -9 -68 -5
-			L  -55 20
-			Q  -51.5 25 -45 25 
+			L  -55 25
+			Q  -51.5 30 -45 30 
 			"
 		stroke-width="1"
   	/>
 
-	<path class="icon"
+	<path stroke={color} fill=transparent
 		d="
-			M -15 50
-			L  2 50
-			L  5 53
-			L  18 48
-			L  21 51
-			M  14 50
-			L  5  60
-			L -15 60
-			L -15 45
-			L -22 43
-			L -23 47
-			L -11 50
-			M -5 50
-			L -5 44
-			L  0 44
-			L -10 44
+			M -12  54
+			l  17   0
+			l   3   3
+			l  13  -5
+			l   3   3
+			m  -7  -1
+			l  -9  10
+			l -20   0
+			l   0 -15
+			l  -7  -2
+			l  -1   4
+			l  12   3
+			m   6   0
+			l   0  -6
+			l   5   0
+			l -10   0
 			"
 			stroke-width="3"
   	/>
-
-	<path class="icon-drop"
+	  
+	<path stroke={color} fill=transparent
 	  d="
-		  M 21 54
-		  L 22 58
-		  Q 21 61 20 58
-		  L 21 55
+		  M 24 58
+		  l  1  4
+		  q -1  3 -2 0
+		  l  1 -3
 		  "
 		  stroke-width="1"
 	/>
@@ -124,22 +126,21 @@
 
 	<circle class="scale-foreground" cx="35" cy="-1" r="1" stroke-width="2" />
 
-	<text class="units" x="0" y="-56" 
-		font-size = 20
-		
+	<text class="units" x="0" y="-58" 
+		font-size = 25
 		dominant-baseline = "middle"
 		text-anchor = "middle"
 		font-weight = "bold"
 		fill="white"
-	>{oilPressure.toFixed(1)} kg/cm&sup2</text>
+	>{oilPressure.toFixed(1)}</text>
 
-    <!-- <text class="units" x="0" y="14" 
-		font-size = 16	
+    <text class="units" x="0" y="19" 
+		font-size = 18	
 		dominant-baseline = "middle"
 		text-anchor = "middle"
 		font-weight = "bold"
 		fill="white"
-	>kg/cm&sup2</text> -->
+	>kg/cm&sup2</text>
 
     <text class="units" x="-47" y="-37" 
 		font-size = 12
@@ -203,16 +204,6 @@
 
     .units {
         fill: #c6f4fa;
-    }
-
-    .icon {
-        stroke: #ccf587;
-        fill: transparent
-    }
-
-	.icon-drop {
-        stroke: #ccf587;
-        fill: #ccf587
     }
 
     .needle {

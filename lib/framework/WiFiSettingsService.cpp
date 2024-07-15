@@ -34,8 +34,8 @@ void WiFiSettingsService::initWiFi()
     WiFi.mode(WIFI_MODE_STA); // this is the default.
 
     // Disable WiFi config persistance and auto reconnect
-    WiFi.persistent(true);
-    WiFi.setAutoReconnect(true);
+    WiFi.persistent(false);
+    WiFi.setAutoReconnect(false);
 
     WiFi.onEvent(
         std::bind(&WiFiSettingsService::onStationModeDisconnected, this, std::placeholders::_1, std::placeholders::_2),

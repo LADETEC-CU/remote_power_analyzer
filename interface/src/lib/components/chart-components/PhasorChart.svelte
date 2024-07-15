@@ -15,7 +15,10 @@
   $: decimalUnits = 0;
 
   let arrowI = [1, 1, 1];
-  
+  let phaseVoltageLarge = [1, 1, 1];
+  let phaseVoltageWeight = ['normal', 'normal', 'normal'];
+  let lineVoltageWeight = ['normal', 'normal', 'normal'];
+
 	let rs = [25, 50, 75, 100];
 	let angs = [0, 30, 60, 120, 150, 180, 210, 240, 300, 330]
 	let angL = [0, -30, -60, -120, -150, 180, 150, 120, 60, 30]
@@ -39,13 +42,28 @@
     if (maxScale > 1 && (maxScale % 4) != 0) decimalUnits++;
     if (maxScale > 1 && (maxScale % 2) != 0) decimalUnits++;
 
-    arrowI[0] = 10 * Iabs[0] / maxScale;
+    arrowI[0] = 6 * Iabs[0] / maxScale;
     if (Math.abs(arrowI[0]) > 1) arrowI[0] = Math.sign(arrowI[0]);
-    arrowI[1] = 10 * Iabs[1] / maxScale;
+    arrowI[1] = 6 * Iabs[1] / maxScale;
     if (Math.abs(arrowI[1]) > 1) arrowI[1] = Math.sign(arrowI[1]);
-    arrowI[2] = 10 * Iabs[2] / maxScale;
+    arrowI[2] = 6 * Iabs[2] / maxScale;
     if (Math.abs(arrowI[2]) > 1) arrowI[2] = Math.sign(arrowI[2]);
-    
+
+    let largestPhaseVoltage = Math.abs(phaseVoltages[0]);
+    if (Math.abs(phaseVoltages[1]) > largestPhaseVoltage) largestPhaseVoltage = Math.abs(phaseVoltages[1]);
+    if (Math.abs(phaseVoltages[2]) > largestPhaseVoltage) largestPhaseVoltage = Math.abs(phaseVoltages[2]);
+
+    let largestLineVoltage = Math.abs(lineVoltages[0]);
+    if (Math.abs(lineVoltages[1]) > largestLineVoltage) largestLineVoltage = Math.abs(lineVoltages[1]);
+    if (Math.abs(lineVoltages[2]) > largestLineVoltage) largestLineVoltage = Math.abs(lineVoltages[2]);
+
+    for(let i = 0; i < 3; i++) {
+      phaseVoltageLarge[i] = phaseVoltages[i] / largestPhaseVoltage;
+      if (Math.abs(phaseVoltages[i]) === largestPhaseVoltage) phaseVoltageWeight[i] = 'bold'
+      else phaseVoltageWeight[i] = 'normal';
+      if (Math.abs(lineVoltages[i]) === largestLineVoltage) lineVoltageWeight[i] = 'bold'
+      else lineVoltageWeight[i] = 'normal';
+    }
   });
 
 </script>
@@ -92,6 +110,7 @@
     text-anchor = "middle"
     fill="red"
     transform="rotate(-90)"
+    font-weight={phaseVoltageWeight[0]}
   >Va = {phaseVoltages[0].toFixed(1)} V</text>
 
   <text x={125*Math.cos(120*Math.PI/180)} y={125*Math.sin(120*Math.PI/180)}
@@ -99,6 +118,7 @@
     dominant-baseline = "middle"
     text-anchor = "middle"
     fill="blue"
+    font-weight={phaseVoltageWeight[1]}
     transform="rotate(0)"
   >Vb = {phaseVoltages[1].toFixed(1)} V</text>
   <text x={125*Math.cos(-120*Math.PI/180)} y={125*Math.sin(-120*Math.PI/180)}
@@ -106,6 +126,7 @@
     dominant-baseline = "middle"
     text-anchor = "middle"
     fill="green"
+    font-weight={phaseVoltageWeight[2]}
     transform="rotate(0)"
   >Vb = {phaseVoltages[2].toFixed(1)} V</text>
 
@@ -114,6 +135,7 @@
     dominant-baseline = "middle"
     text-anchor = "middle"
     fill="purple"
+    font-weight={lineVoltageWeight[0]}
     transform="rotate(-30)"
   >Vab = {lineVoltages[0].toFixed(1)} V</text>
   <text x={125*Math.cos(-90*Math.PI/180)} y={125*Math.sin(-90*Math.PI/180)}
@@ -121,6 +143,7 @@
     dominant-baseline = "middle"
     text-anchor = "middle"
     fill="purple"
+    font-weight={lineVoltageWeight[1]}
     transform="rotate(-90)"
   >Vbc = {lineVoltages[1].toFixed(1)} V</text>
   <text x={125*Math.cos(-90*Math.PI/180)} y={125*Math.sin(-90*Math.PI/180)}
@@ -128,15 +151,16 @@
     dominant-baseline = "middle"
     text-anchor = "middle"
     fill="purple"
+    font-weight={lineVoltageWeight[2]}
     transform="rotate(30)"
   >Vca = {lineVoltages[2].toFixed(1)} V</text>
 
   
   {#each Iabs as  I, i}
-		<line x1=0 y1=0 x2=100 y2=0 stroke={Icolor[i]}	stroke-width=2 stroke-dasharray="4,4" transform="rotate({i*120})"/>
+		<line x1=0 y1=0 x2={100*phaseVoltageLarge[i]} y2=0 stroke={Icolor[i]}	stroke-width=2 stroke-dasharray="4,4" transform="rotate({i*120})"/>
 		
     <path stroke-width=3 stroke={Icolor[i]} fill="transparent" transform="rotate({i*120 - Iang[i]})"
-			d="M 0 0 L {100 * I / maxScale - 4} 0 l {-10*arrowI[i]} {3*arrowI[i]} l {10*arrowI[i]} {-3*arrowI[i]} l {-10*arrowI[i]} {-3*arrowI[i]}"		
+			d="M 0 0 L {100 * I / maxScale - 5*arrowI[i]} 0 l {-10*arrowI[i]} {3*arrowI[i]} l {10*arrowI[i]} {-3*arrowI[i]} l {-10*arrowI[i]} {-3*arrowI[i]}"		
 			/>
 
     <path stroke-dasharray="2,1"

@@ -1,17 +1,21 @@
-<script>
+<script lang="ts">
 
 	import { beforeUpdate } from 'svelte';
 	import { spring } from 'svelte/motion';
 
     export let temperature = 80;
+	export let alarm = false;
+
 	let temperatureNeedle = 80;
+	let color = "rgb(255, 71, 72)";
 	
 	$: {
+		if (alarm) color = "rgb(255, 71, 71)"; else color = "rgb(204, 245, 135)";
 		temperatureNeedle = temperature;
-		if (temperatureNeedle < 43)
-			temperatureNeedle = 43;
-		else if (temperatureNeedle > 127)
-			temperatureNeedle = 127;
+		if (temperatureNeedle < 39)
+			temperatureNeedle = 39;
+		else if (temperatureNeedle > 131)
+			temperatureNeedle = 131;
 	}
 
     let angle1 = (90 - 1.18*(temperatureNeedle - 85)) * Math.PI / 180;
@@ -44,92 +48,83 @@
         <clipPath id="cut-needle-temp">
             <path 
                 d="
-                    M -45, 25
-					L  45, 25
-					Q  51.5 25 55 20
+                    M -45, 30
+					L  45, 30
+					Q  51.5 30 55 25
 					L  68 -5
 					Q  70 -9 68 -12
 					Q   0 -68 -68 -12
 					Q  -70 -9 -68 -5
-					L  -55 20
-					Q  -51.5 25 -45 25 
+					L  -55 25
+					Q  -51.5 30 -45 30 
 					"
-					fill="red"
-					stroke="red"
 			/>
         </clipPath>
     </defs>
     <circle cx="0" cy="0" r="100" fill="url(#RadialGradient)"/>
     
-    <circle class="instrument-background" cx="0" cy="0" r="85" />
+    <circle class="instrument-background" cx="0" cy="4" r="85" />
 		
     <path class="scale-background"
 		d="
-			M -45, 25
-			L  45, 25
-			Q  51.5 25 55 20
+			M -45, 30
+			L  45, 30
+			Q  51.5 30 55 25
 			L  68 -5
 			Q  70 -9 68 -12
 			Q   0 -68 -68 -12
 			Q  -70 -9 -68 -5
-			L  -55 20
-			Q  -51.5 25 -45 25 
+			L  -55 25
+			Q  -51.5 30 -45 30 
 			"
 			stroke-width="1"
   	/>
-
-	<path class="icon"
+	
+	<path stroke={color}
 		d="
-			M -17 62
-			Q -12 57  -9 60
-			Q  -6 64  -3 60
-			Q   0 57   3 60
-			Q   6 64   9 60
-			Q  12 57  17 62
-			"
-			stroke-width="3"
-
-  	/>
-
-	<rect class="instrument-background" x="-6" y="55" width="12" height="10"/>
-
-	<path class="icon"
-		d="
-			M -15 70
-			Q -12 74  -9 70
-			Q  -6 67  -3 70
-			Q   0 74   3 70
-			Q   6 67   9 70
-			Q  12 74  15 70
+			M -17 65
+			q   5 -5   8 -2
+			q   3  4   6  0
+			q   3 -3   6  0
+			q   3  4   6  0
+			q   3 -3   8  2
 			"
 			stroke-width="3"
   	/>
 
-	  <path class="icon"
-	  d="
-		  M  0, 36
-		  L  0, 59
-		  L  0, 39
-		  L  8, 39
-		  L  0, 39
-		  L  0, 45
-		  L  8, 45
-		  L  0, 45
-		  L  0, 51
-		  L  8, 51
-		  L  0, 51
-		  "
-		  stroke-width="3"
-		  stroke-linecap="round"
-	/>
-	<circle class="icon" cx="0" cy="60" r="2" stroke-width="4"/>
+	<rect class="instrument-background" x="-6" y="59" width="12" height="10"/>
+
+	<path stroke={color}
+		d="
+			M -15   73
+			q   3    4   6  0
+			q   3   -3   6  0
+			q   3    4   6  0
+			q   3   -3   6  0
+			q   3    4   6  0
+			m -15, -34
+		    l   0,  23
+		    l   0, -20
+		    l   8,   0
+		    l  -8,   0
+		    l   0,   6
+		    l   8,   0
+		    l  -8,   0 
+		    l   0,   6
+		    l   8,   0
+		    l  -8,   0
+		    "
+			stroke-width="3"
+  	/>
+
+	<circle cx="0" cy="64" r="2" stroke-width="4" stroke={color}/>
 
 	<path class="scale-foreground"
 	  d="
-		  M  -52 6  
-		  L  -44   15 
+		  M  -52   6   
+		  L  -44  15 
 		  Q    0 -20 44 15
-		  L   52 6
+		  L   52   6
 		  "
 		  stroke="white"
 		  stroke-width="3"
@@ -151,16 +146,15 @@
 	/>
 
 	<text class="units" x="0" y="-58" 
-		font-size = 20
-		
+		font-size = 25
 		dominant-baseline = "middle"
 		text-anchor = "middle"
 		font-weight = "bold"
 		fill="white"
 	>{temperature.toFixed(1)}</text>
 
-	<text class="units" x="0" y="14" 
-		font-size = 16	
+	<text class="units" x="0" y="19" 
+		font-size = 18	
 		dominant-baseline = "middle"
 		text-anchor = "middle"
 		font-weight = "bold"
@@ -243,11 +237,6 @@
 
     .units {
         fill: #c6f4fa;
-    }
-
-    .icon {
-        stroke: #ccf587;
-        fill: transparent
     }
 
     .needle {

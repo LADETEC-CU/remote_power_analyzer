@@ -1,8 +1,8 @@
 
 <script>
-import StatusLed from './StatusLed.svelte';
+import StatusLed from '$lib/components/panel-components/StatusLed.svelte';
 
-export let ledStatus = [false, false, false, false, false, false, false, false]; 
+export let ledStatus = [false, false, false, false, false, false, false, false, false, false]; 
 
 $: leds1 = [
         { name: 'Encendido', active: ledStatus[0], color: 'green' },
@@ -19,6 +19,7 @@ $: leds2 = [
         { name: 'Voltaje fuera rango', active: ledStatus[8], color: 'red' },
         { name: 'Velocidad fuera rango', active: ledStatus[9], color: 'red' },
     ];
+    
 </script>
 
 <div class="led-container">
@@ -37,7 +38,7 @@ $: leds2 = [
 
 <style>
 
-.led-container {
+    .led-container {
         display: grid;
         grid-template-columns: 1fr auto 1fr; /* Divide el espacio en tres partes iguales */
         width: 100%;
@@ -50,7 +51,7 @@ $: leds2 = [
     }
 
 	.separator {
-        width: 20px;
+        width: 10px;
     }
 	
 </style>

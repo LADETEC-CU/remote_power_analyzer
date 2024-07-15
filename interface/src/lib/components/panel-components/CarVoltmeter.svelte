@@ -4,14 +4,18 @@
 	import { spring } from 'svelte/motion';
 
     export let voltage = 12;
+	export let alarm = false;
+
 	let voltageNeedle = 12;
+	let color = "rgb(255, 71, 71)";
 
 	$:{
+		if (alarm) color = "rgb(255, 71, 71)"; else color = "rgb(204, 245, 135)";
 		voltageNeedle = voltage;
-		if (voltageNeedle < 9.5)
-			voltageNeedle = 9.5;
-		else if (voltageNeedle > 16.5)
-			voltageNeedle = 16.5;
+		if (voltageNeedle < 9.12)
+			voltageNeedle = 9.12;
+		else if (voltageNeedle > 16.88)
+			voltageNeedle = 16.88;
 	}
 
 	let angle1 = (90 - 14*(voltageNeedle - 13)) * Math.PI / 180;
@@ -49,21 +53,19 @@
         <clipPath id="cut-needle-bat">
             <path 
                 d="
-                    M -45, 25
-					L  45, 25
-					Q  51.5 25 55 20
+                    M -45, 30
+					L  45, 30
+					Q  51.5 30 55 25
 					L  68 -5
 					Q  70 -9 68 -12
 					Q   0 -68 -68 -12
 					Q  -70 -9 -68 -5
-					L  -55 20
-					Q  -51.5 25 -45 25 
+					L  -55 25
+					Q  -51.5 30 -45 30 
 					"
-					fill="red"
-					stroke="red"
 			/>
-        </clipPath>
-		
+        </clipPath>	
+
     </defs>
 
     <circle cx="0" cy="0" r="100" fill="url(#RadialGradient)"/>
@@ -72,35 +74,22 @@
 	
     <path class="scale-background"
 		d="
-			M -45, 25
-			L  45, 25
-			Q  51.5 25 55 20
+			M -45, 30
+			L  45, 30
+			Q  51.5 30 55 25
 			L  68 -5
 			Q  70 -9 68 -12
 			Q   0 -68 -68 -12
 			Q  -70 -9 -68 -5
-			L  -55 20
-			Q  -51.5 25 -45 25 
+			L  -55 25
+			Q  -51.5 30 -45 30 
 			"
 		stroke-width="1"
   	/>
 
-	  <!-- <path
-	  d="
-		  M -45, 35
-		  L  45, 35
-		  L  75, -15
-		  L   0, -40
-		  L -75, -15
-		  Z
-		  "
-		  fill=red
-		  stroke=red
-  /> -->
-
-	<path class="icon"
+	<path stroke={color} fill=transparent
 		d="
-			M -17 -70
+			M -17 48
 			l  34  0
 			l   0 20
 			l -34  0
@@ -117,9 +106,9 @@
 			stroke-width="3"
   	/>
 
-	<path class="icon"
+	<path stroke={color} fill=transparent
 	  d="
-		  M -13 -63 
+		  M -13  55 
 		  l   6   0
 		  m  20   0
 		  l  -6   0
@@ -159,14 +148,21 @@
 		  stroke-width="3"
 	/>
 
-	<text class="units" x="0" y="54" 
-		font-size = 20
-		
+	<text class="units" x="0" y="-58" 
+		font-size = 25
 		dominant-baseline = "middle"
 		text-anchor = "middle"
 		font-weight = "bold"
 		fill="white"
-	>{voltage.toFixed(1)} V</text>
+	>{voltage.toFixed(1)}</text>
+
+	<text class="units" x="0" y="19" 
+		font-size = 18	
+		dominant-baseline = "middle"
+		text-anchor = "middle"
+		font-weight = "bold"
+		fill="white"
+	>V</text>
 
     <text class="units" x="-46" y="-37" 
 		font-size = 12
@@ -239,11 +235,6 @@
 
     .units {
         fill: #c6f4fa;
-    }
-
-    .icon {
-        stroke: #ccf587;
-        fill: transparent
     }
 
     .needle {

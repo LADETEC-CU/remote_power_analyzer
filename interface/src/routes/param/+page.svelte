@@ -16,17 +16,7 @@
     let isCollapsedAparentPower = true;
     let isCollapsedOtherParameters = false;
 
-	// export let countt = 0;
-	// function logData() {
-	// 	console.log(`parámetros === ${countt}`);
-	// 	countt++;
-	// 	setTimeout(logData, 2000);
-	// }
-	// onMount(() => {
-	// 	logData();
-	// });
-
-	let lightState: LightState = {
+	$: lightState = {
 		led_on: false,
 		VA: 0,
 		VB: 0,
@@ -65,7 +55,9 @@
 		isWorking: false,
 		isMainPower: false,
 		isStartFail: false,
-		isEmergencyStop: false,
+		isBatteryOk: false,
+		isBatteryLow: false,
+		isBatteryHigh: false,
 		isHighTemp: false,
 		isLowOilPress: false,
 		isOverSpeed: false,
@@ -82,6 +74,9 @@
 		modbusState: false
 	};
 
+	let isSocketConnected = false;
+	let timeout;
+    
 	async function getLightstate() {
 		try {
 			const response = await fetch('/rest/lightState', {
@@ -92,30 +87,33 @@
 				}
 			});
 			const light = await response.json();
-
-			console.log("ppppppp --> getLightState");
-
+			lightState = light;
 		} catch (error) {
 			console.error('Error:', error);
 		}
 		return;
 	}
 
+	function requestData() {
+		if (!isSocketConnected) {
+			getLightstate();
+		}
+		isSocketConnected = false;
+		timeout = setTimeout(requestData, 2500);
+	}
+
 	onMount(()=> {
-		
 		socket.on<LightState>('led', (merterData) => {
 			lightState = merterData;
-
-			console.log("se pidio datos");
+			isSocketConnected = true;
 			console.log(lightState);
-			// console.log(batteryVoltage);
 		});
-		getLightstate();
+		timeout = setTimeout(requestData, 500); // Request data every 2 seconds
 	});
 
 	onDestroy(() => {
 		socket.off('led');
-		console.log('destroyed');
+		clearTimeout(timeout);
 	});
 
 
@@ -349,21 +347,26 @@
 		font-weight: bold;
 		color: white;
 		background-color: rgb(0, 169, 48);
-		margin: 20px 0px 0px 0px;
+		margin: 20px 0% 0px 0%;
 	}
 	.energy-items {
 		background-color: rgb(201, 223, 207);
-	}.line-current {
+		margin: 0px 0% 0px 0%;
+
+
+	}
+	.line-current {
 		display: flex;
         align-items: center;
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
 		background-color: rgb(112, 110, 0);
-		margin: 20px 0px 0px 0px;
+		margin: 20px 0% 0px 0%;
 	}
 	.line-current-items {
 		background-color: rgb(255, 254, 219);
+		margin: 0px 0% 0px 0%;
 	}
 	.phase-voltage {
 		display: flex;
@@ -372,10 +375,11 @@
 		font-weight: bold;
 		color: white;
 		background-color: rgb(103, 0, 0);
-		margin: 20px 0px 0px 0px;
+		margin: 20px 0% 0px 0%;
 	}
 	.phase-voltage-items {
 		background-color: rgb(255, 202, 202);
+		margin: 0px 0% 0px 0%;
 	}
 	.line-voltage {
 		display: flex;
@@ -384,10 +388,11 @@
 		font-weight: bold;
 		color: white;
 		background-color: rgb(0, 0, 103);
-		margin: 20px 0px 0px 0px;
+		margin: 20px 0% 0px 0%;
 	}
 	.line-voltage-items {
 		background-color: rgb(234, 234, 255);
+		margin: 0px 0% 0px 0%;
 	}
 	.power-factor {
 		display: flex;
@@ -396,10 +401,11 @@
 		font-weight: bold;
 		color: white;
 		background-color: rgb(125, 0, 119);
-		margin: 20px 0px 0px 0px;
+		margin: 20px 0% 0px 0%;
 	}
 	.power-factor-items {
 		background-color: rgb(255, 217, 253);
+		margin: 0px 0% 0px 0%;
 	}
 	.active-power {
 		display: flex;
@@ -408,10 +414,11 @@
 		font-weight: bold;
 		color: white;
 		background-color: rgb(0, 103, 89);
-		margin: 20px 0px 0px 0px;
+		margin: 20px 0% 0px 0%;
 	}
 	.active-power-items {
 		background-color: rgb(223, 250, 247);
+		margin: 0px 0% 0px 0%;
 	}
 	.reactive-power {
 		display: flex;
@@ -420,10 +427,11 @@
 		font-weight: bold;
 		color: white;
 		background-color: rgb(222, 126, 0);
-		margin: 20px 0px 0px 0px;
+		margin: 20px 0% 0px 0%;
 	}
 	.reactive-power-items {
 		background-color: rgb(252, 229, 203);
+		margin: 0px 0% 0px 0%;
 	}
 	.aparent-power {
 		display: flex;
@@ -432,10 +440,11 @@
 		font-weight: bold;
 		color: white;
 		background-color: rgb(155, 0, 251);
-		margin: 20px 0px 0px 0px;
+		margin: 20px 0% 0px 0%;
 	}
 	.aparent-power-items {
 		background-color: rgb(243, 226, 255);
+		margin: 0px 0% 0px 0%;
 	}
 	.other-parameters {
 		display: flex;
@@ -444,10 +453,11 @@
 		font-weight: bold;
 		color: white;
 		background-color: rgb(65, 65, 65);
-		margin: 20px 0px 0px 0px;
+		margin: 20px 0% 0px 0%;
 	}
 	.other-parameters-items {
 		background-color: rgb(225, 225, 225);
+		margin: 0px 0% 10px 0%;
 	}
 	.total {
 		font-size: 18px;
@@ -464,11 +474,11 @@
         text-align: start;
 	}
 	.cell-data {
-		width: 33.33%;
+		width: 33.30%;
         text-align: center;
 	}
 	.cell-data-right {
-		width: 33.33%;
+		width: 33.30%;
         text-align: end;
 	}
 </style>

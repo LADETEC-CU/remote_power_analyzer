@@ -112,7 +112,6 @@ export type LightState = {
 	modbusErrors: number;
 	modbusFails: number;
 	modbusState: boolean;
-
 };
 
 export type BrokerSettings = {

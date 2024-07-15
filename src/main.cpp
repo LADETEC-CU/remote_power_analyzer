@@ -20,7 +20,7 @@
 
 #define SERIAL_BAUD_RATE 115200
 
-boolean modbusSerialEcho = true;
+boolean modbusSerialEcho = false;
 boolean modbusSimulation = false;
 
 const uint8_t pinWorking         = 27; 
@@ -273,6 +273,8 @@ void readVars() {
   isWorking = digitalRead(pinWorking);
   isMainPower = digitalRead(pinMainPower);
   isStartFail = digitalRead(pinStartFail);
+
+  modbusSerialEcho = isMainPower;
 
   isBatteryOk = (batteryLevel >= 110 && batteryLevel <= 150) ? true : false;
   isBatteryLow = batteryLevel < 110 ? true : false;

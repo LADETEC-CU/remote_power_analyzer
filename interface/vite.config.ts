@@ -18,14 +18,12 @@ const config: UserConfig = {
 			'/rest': {
 				// target: 'http://192.168.1.89',
 				target: 'http://192.168.4.1',
-				// target: 'http://192.168.1.101',
 				changeOrigin: true
 			},
 			// Proxying websockets ws://localhost:5173/ws -> ws://192.168.1.83/ws
 			'/ws': {
 				// target: 'ws://192.168.1.89',
 				target: 'ws://192.168.4.1',
-				// target: 'ws://192.168.1.101',
 				changeOrigin: true,
 				ws: true
 			}

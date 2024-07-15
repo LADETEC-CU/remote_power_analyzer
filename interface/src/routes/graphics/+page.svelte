@@ -5,50 +5,17 @@
 	import { page } from '$app/stores';
 	import type { LightState } from '$lib/types/models';
 
-	import PhasorChart from "./PhasorChart.svelte";
-	import PowerChart from './PowerChart.svelte';
+	import PhasorChart from "$lib/components/chart-components/PhasorChart.svelte";
+	import PowerChart from '$lib/components/chart-components/PowerChart.svelte';
 
-	// export let Ia = 0;
-	// export let Ib = 0;
-	// export let Ic = 0;
-	
 	$: angIa = 0;
 	$: angIb = 0;
 	$: angIc = 0;
 
-	export let P = 49;
-	export let Q = 49;
-
-	let counter = 0;
-
-
-	// export let countf = 0;
-
-	function generateMag() {
-		// console.log(`fasores /// ${countf} `);
-		// countf++;
-
-		// Ia = Math.floor(Math.random() * 100);
-		// Ib = Math.floor(Math.random() * 100);
-		// Ic = Math.floor(Math.random() * 100);
-		// angIa = Math.floor(Math.random() * 40) - 20;
-		// angIb = Math.floor(Math.random() * 40) - 20;
-		// angIc = Math.floor(Math.random() * 40) - 20;
-
-		// Ia = 25;//1 + 1 * Math.cos(0.1 * counter);
-		// Ib = 50;
-		// Ic = 75;
-
-		// angIa = 20 + 50 * Math.sin(0.05*counter);
-
-		// P = 7;
-		// Q = 50 - 1 * Math.sin(3*counter);
-
-		counter++;
-		setTimeout(generateMag, 2000);
-	}
-
-	let lightState: LightState = {
+	let isSocketConnected = false;
+	let timeout;
+    
+	$: lightState = {
 		led_on: false,
 		VA: 0,
 		VB: 0,
@@ -87,7 +54,9 @@
 		isWorking: false,
 		isMainPower: false,
 		isStartFail: false,
-		isEmergencyStop: false,
+		isBatteryOk: false,
+		isBatteryLow: false,
+		isBatteryHigh: false,
 		isHighTemp: false,
 		isLowOilPress: false,
 		isOverSpeed: false,
@@ -127,10 +96,10 @@
 				}
 			});
 			const light = await response.json();
-			// lightState = light;
+			lightState = light;
 			intermediateCalculation();
 
-			console.log("ppppppp --> getLightState");
+			console.log("ppppp --> getLightState");
 
 		} catch (error) {
 			console.error('Error:', error);
@@ -138,22 +107,28 @@
 		return;
 	}
 
+	function requestData() {
+		if (!isSocketConnected) {
+			getLightstate();
+		}
+		isSocketConnected = false;
+		timeout = setTimeout(requestData, 2500);
+	}
+
 	onMount(()=> {
-		
 		socket.on<LightState>('led', (merterData) => {
 			lightState = merterData;
+			isSocketConnected = true;
 			intermediateCalculation();
-			
-			console.log("se pidio datos");
-			console.log(lightState);
-			console.log(`${lightState.PB} ${lightState.QB} ${angIb.toFixed(2)} ${lightState.pfB}`);
+			// console.log(lightState);
+			// console.log(`${lightState.PB} ${lightState.QB} ${angIb.toFixed(2)} ${lightState.pfB}`);
 		});
-		getLightstate();
+		timeout = setTimeout(requestData, 500); // Request data every 2 seconds
 	});
 
 	onDestroy(() => {
 		socket.off('led');
-		console.log('destroyed');
+		clearTimeout(timeout);
 	});
 
 </script>
@@ -206,7 +181,7 @@
 	.phasors {
         display: flex;
         justify-content: space-between;
-		margin: 0px 0px 10px ;
+		margin: 0px 0px 10px 0px;
     }
 
     .c-phasor {

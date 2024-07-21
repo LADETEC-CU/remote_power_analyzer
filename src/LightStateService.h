@@ -99,6 +99,9 @@ public:
         root["tPenergy"] = settings.modbusRegs[0x25] * 65536 + settings.modbusRegs[0x26];
         root["tQenergy"] = settings.modbusRegs[0x27] * 65536 + settings.modbusRegs[0x28];
 
+        root["imbalanceVoltage"] = settings.modbusRegs[0x32] / 10.0;
+        root["imbalanceCurrent"] = settings.modbusRegs[0x33] / 10.0;
+
         root["isWorking"] = settings.isWorking;
         root["isMainPower"] = settings.isMainPower;
         root["isStartFail"] = settings.isStartFail;

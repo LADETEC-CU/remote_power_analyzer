@@ -74,6 +74,8 @@
 		rQenergy: 0,
 		tPenergy: 0,
 		tQenergy: 0,
+		imbalanceVoltage: 0,
+		imbalanceCurrent: 0,
 		isWorking: false,
 		isMainPower: false,
 		isStartFail: false,

@@ -92,6 +92,8 @@ export type LightState = {
 	rQenergy: number
 	tPenergy: number
 	tQenergy: number
+	imbalanceVoltage: number;
+	imbalanceCurrent: number;
 	isWorking: boolean;
 	isMainPower: boolean;
 	isStartFail: boolean;

@@ -154,9 +154,11 @@ void readModbus() {
     modbusData[0x01] = uint16_t(1000 + rand() % 200);
     modbusData[0x02] = uint16_t(1200 + rand() % 200);
     
-    modbusData[0x03] = uint16_t(15000 + 15000 * cos(0.3 * runTime + 5));  // phase currents
-    modbusData[0x04] = uint16_t(10000 + rand() % 20000);
-    modbusData[0x05] = uint16_t(20000 + rand() % 10000);
+    float i1 = 16000 + 16000 * cos(0.01 * runTime);
+    i1 =  i1 + ((rand() % 4000) - 2000) * i1 / 30000;
+    modbusData[0x03] = uint16_t(i1); //uint16_t(16000 + 16000 * cos(0.01 * runTime));  // phase currents
+    modbusData[0x04] = uint16_t(00000 + rand() % 4000);
+    modbusData[0x05] = uint16_t(00000 + rand() % 2000);
 
     modbusData[0x08] = int16_t(3000 + 3000 * cos(0.3 * runTime + 8));  // active power
     modbusData[0x09] = int16_t(1000 + rand() % 300);
@@ -199,8 +201,11 @@ void readModbus() {
     modbusData[0x27] = uint16_t(10 + rand() % 10);
     modbusData[0x28] = uint16_t(100 + rand() % 100);
 
-    modbusData[0x2F] = 1;
-    modbusData[0x30] = 1;
+    modbusData[0x2F] = 1;   // PT voltage ratio
+    modbusData[0x30] = 3; //uint16_t(001 + rand() % 5);   // CT current ratio
+
+    modbusData[0x32] = uint16_t(000 + rand() % 500);    // voltage imbalamce
+    modbusData[0x33] = uint16_t(500 + rand() % 500);    // current imbalamce
 
   }
 
@@ -338,7 +343,7 @@ void setup()
     // Serial.println(FACTORY_WIFI_HOSTNAME);
     // Serial.println(FACTORY_WIFI_RSSI_THRESHOLD);
     // Serial.println("xxxxxxxxxx--------------");
-
+    
     pinMode(pinWorking, INPUT_PULLUP);
     pinMode(pinMainPower, INPUT_PULLUP);
     pinMode(pinStartFail, INPUT_PULLUP);

@@ -11,6 +11,9 @@ dependencies:
   compare-versions:
     specifier: ^6.0.0
     version: 6.1.0
+  complex.js:
+    specifier: ^2.1.1
+    version: 2.1.1
   daisyui:
     specifier: ^4.10.2
     version: 4.12.10(postcss@8.4.39)
@@ -963,6 +966,10 @@ packages:
 
   /compare-versions@6.1.0:
     resolution: {integrity: sha512-LNZQXhqUvqUTotpZ00qLSaify3b4VFD588aRr8MKFw4CMUr98ytzCW5wDH5qx/DEY5kCDXcbcRuCqL0szEf2tg==}
+    dev: false
+
+  /complex.js@2.1.1:
+    resolution: {integrity: sha512-8njCHOTtFFLtegk6zQo0kkVX1rngygb/KQI6z1qZxlFI3scluC+LVTCFbrkWjBv4vvLlbQ9t88IPMC6k95VTTg==}
     dev: false
 
   /concat-map@0.0.1:

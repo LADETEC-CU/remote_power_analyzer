@@ -52,6 +52,8 @@
 		rQenergy: 0,
 		tPenergy: 0,
 		tQenergy: 0,
+		imbalanceVoltage: 0,
+		imbalanceCurrent: 0,
 		isWorking: false,
 		isMainPower: false,
 		isStartFail: false,
@@ -289,7 +291,7 @@
 		<div class="collapsible-icon" style="transform: rotate({isCollapsedOtherParameters ? '180deg' : '0'})">&#9650;</div> 
 		<h3 style="font-weight: normal;">Otros parámteros</h3>
 	</div>
-	<div class="other-parameters-items" style="transition: max-height 1s; overflow: hidden; max-height: {isCollapsedOtherParameters ? '0' : '300px'};">
+	<div class="other-parameters-items" style="transition: max-height 1s; overflow: hidden; max-height: {isCollapsedOtherParameters ? '0' : '350px'};">
         <table>
             <tr>
                 <td class="cell-item">Frecuencia [Hz]</td>
@@ -314,6 +316,14 @@
 			<tr>
                 <td class="cell-item">RPM</td>
                 <td class="cell-data-right">{lightState.rpm.toFixed(1)}</td>
+            </tr>
+			<tr>
+                <td class="cell-item">Desbalance de voltaje [%]</td>
+                <td class="cell-data-right">{lightState.imbalanceVoltage.toFixed(1)}</td>
+            </tr>
+			<tr>
+                <td class="cell-item">Desbalance de corriente [%]</td>
+                <td class="cell-data-right">{lightState.imbalanceCurrent.toFixed(1)}</td>
             </tr>
 
         </table>
@@ -346,11 +356,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(0, 169, 48);
+		background-color: rgb(119, 201, 143);
 		margin: 20px 0% 0px 0%;
 	}
 	.energy-items {
-		background-color: rgb(201, 223, 207);
+		background-color: rgb(236, 247, 239);
 		margin: 0px 0% 0px 0%;
 
 
@@ -361,11 +371,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(112, 110, 0);
+		background-color: rgb(173, 172, 108);
 		margin: 20px 0% 0px 0%;
 	}
 	.line-current-items {
-		background-color: rgb(255, 254, 219);
+		background-color: rgb(231, 231, 221);
 		margin: 0px 0% 0px 0%;
 	}
 	.phase-voltage {
@@ -374,11 +384,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(103, 0, 0);
+		background-color: rgb(181, 135, 135);
 		margin: 20px 0% 0px 0%;
 	}
 	.phase-voltage-items {
-		background-color: rgb(255, 202, 202);
+		background-color: rgb(248, 222, 222);
 		margin: 0px 0% 0px 0%;
 	}
 	.line-voltage {
@@ -387,11 +397,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(0, 0, 103);
+		background-color: rgb(138, 138, 188);
 		margin: 20px 0% 0px 0%;
 	}
 	.line-voltage-items {
-		background-color: rgb(234, 234, 255);
+		background-color: rgb(243, 243, 250);
 		margin: 0px 0% 0px 0%;
 	}
 	.power-factor {
@@ -400,11 +410,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(125, 0, 119);
+		background-color: rgb(186, 124, 183);
 		margin: 20px 0% 0px 0%;
 	}
 	.power-factor-items {
-		background-color: rgb(255, 217, 253);
+		background-color: rgb(253, 238, 252);
 		margin: 0px 0% 0px 0%;
 	}
 	.active-power {
@@ -413,11 +423,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(0, 103, 89);
+		background-color: rgb(117, 165, 159);
 		margin: 20px 0% 0px 0%;
 	}
 	.active-power-items {
-		background-color: rgb(223, 250, 247);
+		background-color: rgb(238, 250, 249);
 		margin: 0px 0% 0px 0%;
 	}
 	.reactive-power {
@@ -426,11 +436,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(222, 126, 0);
+		background-color: rgb(191, 156, 109);
 		margin: 20px 0% 0px 0%;
 	}
 	.reactive-power-items {
-		background-color: rgb(252, 229, 203);
+		background-color: rgb(248, 237, 225);
 		margin: 0px 0% 0px 0%;
 	}
 	.aparent-power {
@@ -439,11 +449,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(155, 0, 251);
+		background-color: rgb(189, 145, 216);
 		margin: 20px 0% 0px 0%;
 	}
 	.aparent-power-items {
-		background-color: rgb(243, 226, 255);
+		background-color: rgb(250, 241, 255);
 		margin: 0px 0% 0px 0%;
 	}
 	.other-parameters {
@@ -452,11 +462,11 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(65, 65, 65);
+		background-color: rgb(169, 167, 167);
 		margin: 20px 0% 0px 0%;
 	}
 	.other-parameters-items {
-		background-color: rgb(225, 225, 225);
+		background-color: rgb(238, 237, 237);
 		margin: 0px 0% 10px 0%;
 	}
 	.total {

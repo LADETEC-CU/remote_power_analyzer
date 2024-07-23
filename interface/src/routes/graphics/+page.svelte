@@ -82,6 +82,17 @@
 	let previousScale = 1;
 	let phasorDecimalPlaces = 1;
 
+	let powerMaxScale = 1;
+	let phasePowerMaxScale = 1;
+	let previousPowerScale = 1;
+
+	let powerScaleOptions = [
+		{ option: 0, name: 'auto', selected: true },
+		{ option: 1, name: 'Igual a total  ', selected: false },
+        { option: 2, name: '1/3 de total  ', selected: false }
+    ];
+	let phasePowerScaleOption = 0;
+
 	let Iabs = [0, 0, 0];
 	let Iang = [0, 0, 0];
 	
@@ -98,6 +109,18 @@
 
 	let calculatedImbalanceVoltage = 0;
 	let calculatedImbalanceCurrent = 0;
+
+	function handleCheckboxChange(selectedOption) {
+        powerScaleOptions = powerScaleOptions.map(option => {
+            if (option === selectedOption) {
+				phasePowerScaleOption = option.option;
+                return { ...option, selected: true };
+            } else {
+                return { ...option, selected: false };
+            }
+        });
+		intermediateCalculation();
+    }
 
 	function intermediateCalculation() {
 		if (lightState.PA != 0)
@@ -144,8 +167,6 @@
 		} else {
 			maxScale = previousScale;
 		}
-
-		// console.log(`${previousScale} ${maxScale} ${Imax.toFixed(2)} ${order}`);
 		previousScale = maxScale;
 
 		A = new Complex(Iabs[0]*Math.cos(Iang[0]*Math.PI/180), Iabs[0]*Math.sin(Iang[0]*Math.PI/180));
@@ -170,6 +191,34 @@
 		I0 = (A.add(B).add(C)).mul(oneThird);
 
 		if (Imax < 10) phasorDecimalPlaces = 2; else phasorDecimalPlaces = 1;
+
+		// for power charts
+		let maxPower = Math.abs(lightState.Pt);
+    	if (maxPower < Math.abs(lightState.Qt)) maxPower = Math.abs(lightState.Qt);
+    
+		order = -5;
+		if (maxPower > previousPowerScale * 1.05 || maxPower < previousPowerScale * 1) {
+			while (10 ** order < maxPower) order++;
+			powerMaxScale = 10 ** order;
+			let lastAjust = powerMaxScale;
+			if (maxPower / powerMaxScale < 0.9) lastAjust = 0.9 * powerMaxScale;
+			if (maxPower / powerMaxScale < 0.72) lastAjust = 0.72 * powerMaxScale;
+			if (maxPower / powerMaxScale < 0.60) lastAjust = 0.6 * powerMaxScale;
+			if (maxPower / powerMaxScale < 0.54) lastAjust = 0.54 * powerMaxScale;
+			if (maxPower / powerMaxScale < 0.39) lastAjust = 0.39 * powerMaxScale;
+			if (maxPower / powerMaxScale < 0.3) lastAjust = 0.3 * powerMaxScale;
+			if (maxPower / powerMaxScale < 0.24) lastAjust = 0.24 * powerMaxScale;
+			if (maxPower / powerMaxScale < 0.18) lastAjust = 0.18 * powerMaxScale;
+			if (maxPower / powerMaxScale < 0.12) lastAjust = 0.12 * powerMaxScale;
+			powerMaxScale = lastAjust;
+		} else {
+			powerMaxScale = previousPowerScale;
+		}
+		previousPowerScale = powerMaxScale;
+
+		phasePowerMaxScale = 0;
+		if (phasePowerScaleOption === 1) phasePowerMaxScale = powerMaxScale;
+		if (phasePowerScaleOption === 2) phasePowerMaxScale = -powerMaxScale / 3;
 
 	}
 
@@ -315,24 +364,36 @@
 
 	</div>
 
-
 	<!-- power triangle -->
+
+	<h3 class="powers">Potencias</h3>
+
+	<div class="scale-title">Escala para gráficos de fases: </div>
+	<div class="scale-container">
+		{#each powerScaleOptions as option}
+			<label class="scale-options">
+				<input type="checkbox" bind:checked={option.selected} on:change={() => handleCheckboxChange(option)} />
+				{option.name}
+			</label>
+		{/each}
+	</div>
+
 	<div class="power-diagrams" style="display: flex;">
 		<div class="power-diagram" style="display: flex; justify-content: center; align-items: center; flex: 1;">
-			<PowerChart P={lightState.Pt} Q={lightState.Qt} S={lightState.St} fp={lightState.pft} charWidth={240} chartHeight={384} />
+			<PowerChart scale={powerMaxScale} P={lightState.Pt} Q={lightState.Qt} S={lightState.St} fp={lightState.pft} charWidth={240} chartHeight={384} />
 		</div>
 		<div class="power-diagram" style="display: flex; justify-content: center; align-items: center; flex-direction: column; flex: 1;">
 			<div style="display: flex; justify-content: center; align-items: center; flex-direction: row; flex: 1;">
 				<div style="writing-mode: vertical-rl; transform: rotate(180deg);">fase A</div>
-				<PowerChart P={lightState.PA} Q={lightState.QA} S={lightState.SA} fp={lightState.pfA} charWidth={75} chartHeight={130}/>
+				<PowerChart scale={phasePowerMaxScale} P={lightState.PA} Q={lightState.QA} S={lightState.SA} fp={lightState.pfA} charWidth={75} chartHeight={130}/>
 			</div>
 			<div style="display: flex; justify-content: center; align-items: center; flex-direction: row; flex: 1;">
 				<div style="writing-mode: vertical-rl; transform: rotate(180deg);">fase B</div>
-				<PowerChart P={lightState.PB} Q={lightState.QB} S={lightState.SB} fp={lightState.pfB} charWidth={75} chartHeight={130}/>
+				<PowerChart scale={phasePowerMaxScale} P={lightState.PB} Q={lightState.QB} S={lightState.SB} fp={lightState.pfB} charWidth={75} chartHeight={130}/>
 			</div>
 			<div style="display: flex; justify-content: center; align-items: center; flex-direction: row; flex: 1;">
 				<div style="writing-mode: vertical-rl; transform: rotate(180deg);">fase C</div>
-				<PowerChart P={lightState.PC} Q={lightState.QC} charWidth={75} S={lightState.SC} fp={lightState.pfC} chartHeight={130}/>
+				<PowerChart scale={phasePowerMaxScale} P={lightState.PC} Q={lightState.QC} charWidth={75} S={lightState.SC} fp={lightState.pfC} chartHeight={130}/>
 			</div>
 		</div>
 	</div>
@@ -345,6 +406,7 @@
 	.scale-container {
         display: flex;
         align-items: center;
+		margin-bottom: 10px;
     }
     .scale-options {
         margin-right: 10px;
@@ -383,7 +445,7 @@
 		color: white;
 		padding-top: 2px;
 		padding-bottom: 2px;
-		background-color: rgb(176, 177, 114);
+		background-color: rgb(176, 177, 113);
 	}
 
 	table {
@@ -441,10 +503,25 @@
 		padding-top: 0px;
 		font-weight: bold;
 	}
-
 	.separator {
         width: 1px;
 		background-color: lightgray;
+    }
+
+	.scale-title {
+        text-align: center;
+		margin-top: 5px;
+    }
+	.scale-container {
+        display: flex;
+        align-items: center;
+    }
+    .scale-options {
+        margin-left: auto;
+        margin-right: auto;
+    }
+	input[type="checkbox"] {
+		accent-color: rgb(178, 177, 177);
     }
 
 	.powers {

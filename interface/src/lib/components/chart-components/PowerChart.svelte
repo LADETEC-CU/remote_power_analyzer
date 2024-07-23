@@ -7,11 +7,9 @@
   export let fp = 1; //Math.cos(Math.atan(Q/P));
   export let charWidth = 150;
   export let chartHeight = 240;
-	// export let colorP = rgba(0, 255, 153, 0);
-  // export let colorQ = rgba(255, 166, 0, 0);
-  // export let colorS = rgba(0, 247, 251, 0);
+  export let scale = 0;
 
-  let Pr = P;
+	let Pr = P;
   let Qr = Q;
   let Sr = S;
   let maxScale = 2;
@@ -21,61 +19,70 @@
   let arrowP = 1;
   let arrowQ = 1;
   let arrowS = 1;
-  let kilos : boolean;
-  let megas : boolean;
-  let unitsP = "W";
-  let unitsQ = "VAr";
-  let unitsS = "VA"
+  let unitsPrefix = '';
+  let magDecimal = 0;
   let yLedgend = -60;
   let angRotateS = 0;
 
   function updateScales() {
-    S = Math.sqrt(P ** 2 + Q ** 2);
-    fp = Math.cos(Math.atan(Q/P));
+    // S = Math.sqrt(P ** 2 + Q ** 2);
+    // fp = Math.cos(Math.atan(Q/P));
     
     let maxPower = Math.abs(P);
     if (maxPower < Math.abs(Q)) maxPower = Math.abs(Q);
-    let order = -5; 
-    while (10 ** order < maxPower) order++;
-    maxScaleA = 10 ** order;
+    
+    if (scale != 0) maxPower = Math.abs(scale);
 
-    kilos = false;
-    megas = false;
     Pr = P;
     Qr = Q;
     Sr = S;
-    unitsP = "W";
-    unitsQ = "VAr";
-    unitsS = "VA";
+    unitsPrefix = '';
+    magDecimal = 0;
+    
+    let order = -5; 
+    while (10 ** order < maxPower) order++;
+    maxScaleA = 10 ** order;
     maxScale = maxScaleA;
-    if (maxScaleA > 10000000) {
-      megas = true;
+    if (maxScaleA > 1000000) {
       Pr = P / 1000000;
       Qr = Q / 1000000;
       Sr = S / 1000000;
-      maxScale = maxScaleA /1000000;
+      maxScale = maxScaleA / 1000000;
       maxPower = maxPower / 1000000;
-      unitsP = "MW";
-      unitsQ = "MVAr";
-      unitsS = "MVA";
+      unitsPrefix = 'M';
+      magDecimal = 2;
     } else if (maxScaleA > 10000) {
-      kilos = true;
       Pr = P / 1000;
       Qr = Q / 1000;
       Sr = S / 1000;
-      maxScale = maxScaleA /1000;
+      maxScale = maxScaleA / 1000;
       maxPower = maxPower / 1000;
-      unitsP = "kW";
-      unitsQ = "kVAr";
-      unitsS = "kVA";
+      unitsPrefix = 'k';
+      magDecimal = 2;
     }
     
-    let lastAjust = maxScale;
-    if (maxPower / maxScale < 0.5) lastAjust = 0.5 * maxScale;
-    if (maxPower / maxScale < 0.25) lastAjust = 0.25 * maxScale;
-    if (maxPower / maxScale < 0.2) lastAjust = 0.2 * maxScale;
-    if (maxPower / maxScale < 0.1) lastAjust = 0.1 * maxScale;
-    maxScale = lastAjust;
+    if (scale < 0) {
+      maxScale = Math.abs(scale);
+      if (unitsPrefix === 'k') maxScale = maxScale / 1000;
+      if (unitsPrefix === 'M') maxScale = maxScale / 1000000;
+    } else if (scale === 0) {
+      let lastAjust = maxScale;
+      if (maxPower / maxScale < 0.9) lastAjust = 0.9 * maxScale;
+			if (maxPower / maxScale < 0.72) lastAjust = 0.72 * maxScale;
+			if (maxPower / maxScale < 0.60) lastAjust = 0.6 * maxScale;
+			if (maxPower / maxScale < 0.54) lastAjust = 0.54 * maxScale;
+			if (maxPower / maxScale < 0.39) lastAjust = 0.39 * maxScale;
+			if (maxPower / maxScale < 0.3) lastAjust = 0.3 * maxScale;
+			if (maxPower / maxScale < 0.24) lastAjust = 0.24 * maxScale;
+			if (maxPower / maxScale < 0.18) lastAjust = 0.18 * maxScale;
+			if (maxPower / maxScale < 0.12) lastAjust = 0.12 * maxScale;
+			
+      maxScale = lastAjust;
+    } else {
+      maxScale = scale;
+      if (unitsPrefix === 'k') maxScale = maxScale / 1000;
+      if (unitsPrefix === 'M') maxScale = maxScale / 1000000;
+    }
 
     gridMarks = [-8, -6, -4, -2, 0, 2, 4, 6, 8];
     for (let i = -4; i < 5; i++) {
@@ -85,7 +92,7 @@
     decimalUnits = 0;
     if (maxScale <= 10) decimalUnits = 1;
     if (maxScale < 1) decimalUnits = 2;
-    // if (maxScale > 1 && (maxScale % 4) != 0) decimalUnits++;
+    if (maxScale > 1 && (maxScale % 4) != 0) decimalUnits++;
     // if (maxScale > 1 && (maxScale % 2) != 0) decimalUnits++;
 
     if (Qr / maxScale > 0.1) {
@@ -147,12 +154,12 @@
 			font-size = 9 
 			dominant-baseline = "middle"
 			text-anchor = "middle"
-		>{unitsP}</text>
+		>{unitsPrefix}W</text>
     <text class="grid-label" x=5 y={-110}
 			font-size = 9 
 			dominant-baseline = "middle"
 			text-anchor = "start"
-		>{unitsQ}</text>
+		>{unitsPrefix}VAr</text>
     
     
     <path class="Q" stroke-width = {Math.abs(2*arrowQ/0.7)}
@@ -169,7 +176,7 @@
 			d="M 0 0 L {100 * Pr / maxScale - 4*arrowP} 0 l {-10*arrowP} {3*arrowP} l {10*arrowP} {-3*arrowP} l {-10*arrowP} {-3*arrowP}"		
 			/>
 
-    <text class="P-label" x=10 y={yLedgend - 25}
+    <text class="P-label" x=7 y={yLedgend - 25}
       font-size = 13 
       dominant-baseline = "middle"
       text-anchor = "start"
@@ -180,15 +187,15 @@
 			dominant-baseline = "middle"
 			text-anchor = "end"
       stroke-width= 1
-		>{Pr.toFixed(1)}</text>
+		>{Pr.toFixed(magDecimal)}</text>
     <text class="P-label" x=77 y={yLedgend - 25}
 			font-size = 13 
 			dominant-baseline = "middle"
 			text-anchor = "start"
       stroke-width= 1
-		>{unitsP}</text>
+		>{unitsPrefix}W</text>
     
-    <text class="Q-label" x=10 y={yLedgend}
+    <text class="Q-label" x=7 y={yLedgend}
       font-size = 13 
       dominant-baseline = "middle"
       text-anchor = "start"
@@ -199,15 +206,15 @@
       dominant-baseline = "middle"
 			text-anchor = "end"
       stroke-width= 1
-		>{Qr.toFixed(1)}</text>
+		>{Qr.toFixed(magDecimal)}</text> 
     <text class="Q-label" x=77 y={yLedgend}
       font-size = 13 
       dominant-baseline = "middle"
       text-anchor = "start"
       stroke-width= 1
-    >{unitsQ}</text>
+    >{unitsPrefix}VAr</text>
 
-    <text class="S-label" x=10 y={yLedgend + 25}
+    <text class="S-label" x=7 y={yLedgend + 25}
       font-size = 13 
       dominant-baseline = "middle"
       text-anchor = "start"
@@ -218,13 +225,13 @@
 			dominant-baseline = "middle"
 			text-anchor = "end"
       stroke-width= 1
-		>{Sr.toFixed(1)}</text>
+		>{Sr.toFixed(magDecimal)}</text>
     <text class="S-label" x=77 y={yLedgend + 25}
 			font-size = 13 
 			dominant-baseline = "middle"
 			text-anchor = "start"
       stroke-width= 1
-		>{unitsS}</text>
+		>{unitsPrefix}VA</text>
     
     <text class="fp-label" x=6 y=110
       font-size = 13 
@@ -232,7 +239,8 @@
       text-anchor = "start"
       stroke-width = 1
       font-weight = "normal"
-    >fp: {fp.toFixed(2)}, &#x3c6: {(Math.sign(Qr)*(Math.acos(fp)*180/Math.PI)).toFixed(1)}&deg</text>
+    >fp: {fp.toFixed(2)}, &#x3c6: {(Math.atan(Qr/Pr)*180/Math.PI).toFixed(1)}&deg</text>
+      <!-- >fp: {fp.toFixed(2)}, &#x3c6: {(Math.sign(Qr)*(Math.acos(fp)*180/Math.PI)).toFixed(1)}&deg</text> -->
     
   
   <!-- <circle cx=0 cy=0 r=3 fill=red /> -->

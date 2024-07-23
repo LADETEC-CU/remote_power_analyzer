@@ -154,20 +154,20 @@ void readModbus() {
     modbusData[0x01] = uint16_t(1000 + rand() % 200);
     modbusData[0x02] = uint16_t(1200 + rand() % 200);
     
-    float i1 = 16000 + 16000 * cos(0.01 * runTime);
+    float i1 = 16000 + 16000 * cos(0.02 * runTime);
     i1 =  i1 + ((rand() % 4000) - 2000) * i1 / 30000;
     modbusData[0x03] = uint16_t(i1); //uint16_t(16000 + 16000 * cos(0.01 * runTime));  // phase currents
     modbusData[0x04] = uint16_t(00000 + rand() % 4000);
     modbusData[0x05] = uint16_t(00000 + rand() % 2000);
 
-    modbusData[0x08] = int16_t(3000 + 3000 * cos(0.3 * runTime + 8));  // active power
-    modbusData[0x09] = int16_t(1000 + rand() % 300);
-    modbusData[0x0A] = int16_t(2000 + rand() % 300);
+    modbusData[0x08] = int16_t(3000 + 3000 * cos(0.35678 * runTime + 8));  // active power
+    modbusData[0x09] = 0;//int16_t(100 + rand() % 300);
+    modbusData[0x0A] = 0;//int16_t(200 + rand() % 300);
     modbusData[0x07] = int16_t(modbusData[0x08] + modbusData[0x09] + modbusData[0x0A]);
     
-    modbusData[0x0C] = int16_t(3000 + 6000 * cos(0.5 * runTime + 3)); // reactive powers
-    modbusData[0x0D] = int16_t(1000 - (rand() % 2000));
-    modbusData[0x0E] = int16_t(-1000 - (rand() % 1000));
+    modbusData[0x0C] = i1;//int16_t(3000 + 6000 * cos(0.5 * runTime + 3)); // reactive powers
+    modbusData[0x0D] = 100;//int16_t(100 - (rand() % 200));
+    modbusData[0x0E] = -100; //int16_t(-100 - (rand() % 100));
     modbusData[0x0B] = modbusData[0x0C] + modbusData[0x0D] + modbusData[0x0E];
 
     modbusData[0x10] = uint16_t(sqrt(pow(modbusData[0x0C],2) + pow(modbusData[0x08],2))); //  aparent power
@@ -201,8 +201,8 @@ void readModbus() {
     modbusData[0x27] = uint16_t(10 + rand() % 10);
     modbusData[0x28] = uint16_t(100 + rand() % 100);
 
-    modbusData[0x2F] = 1;   // PT voltage ratio
-    modbusData[0x30] = 3; //uint16_t(001 + rand() % 5);   // CT current ratio
+    modbusData[0x2F] = 20;   // PT voltage ratio
+    modbusData[0x30] = 5; //uint16_t(001 + rand() % 5);   // CT current ratio
 
     modbusData[0x32] = uint16_t(000 + rand() % 500);    // voltage imbalamce
     modbusData[0x33] = uint16_t(500 + rand() % 500);    // current imbalamce

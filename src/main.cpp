@@ -38,7 +38,7 @@ boolean myClock                   = false;
 
 ModbusMaster node;
 uint8_t  result;
-uint16_t MODBUS_DIR_PIN = 5;
+uint16_t MODBUS_DIR_PIN = 4;
 uint16_t PIN_LEDBUILTIN = 2;
 uint16_t SLAVE_ID = 1;
 
@@ -269,7 +269,7 @@ void readVars() {
   //////////////////////////////////////////////////////////
   if (isWorking) workingHours++;
   
-  rpm = modbusData[0x1A] / 3;
+  rpm = modbusData[0x1A] * 3;
   
   temperature = 300 + analogRead(pinTemperature) * 1100 / 4096;
   batteryLevel = 80 + analogRead(pinBateryLevel) * 100 / 4096;

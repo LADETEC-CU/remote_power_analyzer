@@ -5,15 +5,20 @@ import StatusLed from '$lib/components/panel-components/StatusLed.svelte';
 export let ledStatus = [false, false, false, false, false, false, false, false, false, false]; 
 
 $: leds1 = [
-        { name: 'Encendido', active: ledStatus[0], color: 'green' },
-        { name: 'Funcionando', active: ledStatus[1], color: 'green' },
-        { name: 'Batería Ok', active: ledStatus[2], color: 'green' },
-        { name: 'Voltaje Batería Bajo', active: ledStatus[3], color: 'red' },
-        { name: 'Voltaje Batería Alto', active: ledStatus[4], color: 'red' },
+    { name: '', active: ledStatus[0], color: 'no' },
+    { name: '', active: ledStatus[0], color: 'no' },
+    { name: 'Encendido', active: ledStatus[0], color: 'green' },
+    { name: '', active: ledStatus[0], color: 'no' },
+    { name: '', active: ledStatus[0], color: 'no' },
+    { name: 'Funcionando', active: ledStatus[1], color: 'green' },
+    { name: '', active: ledStatus[0], color: 'no' },
+    { name: '', active: ledStatus[0], color: 'no' },
+    { name: 'Batería Ok', active: ledStatus[2], color: 'green' },    
     ];
 
 $: leds2 = [
-        { name: 'Fallo encendido', active: ledStatus[5], color: 'red' },
+        { name: 'Voltaje Batería Bajo', active: ledStatus[3], color: 'red' },
+        { name: 'Voltaje Batería Alto', active: ledStatus[4], color: 'red' },
         { name: 'Temp. refrigerante alta', active: ledStatus[6], color: 'red' },
         { name: 'Presión de aceite baja', active: ledStatus[7], color: 'red' },
         { name: 'Voltaje fuera rango', active: ledStatus[8], color: 'red' },

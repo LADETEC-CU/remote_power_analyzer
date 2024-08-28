@@ -17,23 +17,36 @@
 #include <LightStateService.h>
 #include <PsychicHttpServer.h>
 #include <ModbusMaster.h>
+#include "MCP23017.h"
+#include <SPI.h>
+#include <Mcp320x.h>
+#include <EEPROM.h>
+
 
 #define SERIAL_BAUD_RATE 115200
 
-boolean modbusSerialEcho = false;
+#define I2C_SDA        21
+#define I2C_SCL        22
+
+#define SPI_CS    	   5  	    // SPI slave select
+#define ADC_VREF       1250     // 1.25V Vref
+#define ADC_CLK        8000000  // SPI clock 8MHz
+
+boolean modbusSerialEcho = true;
 boolean modbusSimulation = false;
 
-const uint8_t pinWorking         = 27; 
-const uint8_t pinMainPower       = 26; 
-const uint8_t pinStartFail       = 25; 
+// const uint8_t pinWorking         = 27; 
+// const uint8_t pinMainPower       = 26; 
+// const uint8_t pinStartFail       = 25; 
 
-const uint8_t pinRpm             = 34; // rpm (analog)
-const uint8_t pinTemperature     = 33; // temperature (analog)
-const uint8_t pinBateryLevel     = 35; // battery level (abalog)
-const uint8_t pinOilPressure     = 36; // Oil presuure (analog)
+// const uint8_t pinRpm             = 34; // rpm (analog)
+// const uint8_t pinTemperature     = 33; // temperature (analog)
+// const uint8_t pinBateryLevel     = 35; // battery level (abalog)
+// const uint8_t pinOilPressure     = 36; // Oil presuure (analog)
 
-uint64_t timeOn                   = 500;
-uint64_t timeOff                  = 1000;
+uint64_t timeOn                   = 1000;
+uint64_t timeOff                  = 2000;
+uint64_t timeReadVars             = 0;
 boolean myClock                   = false;
 
 ModbusMaster node;
@@ -43,18 +56,26 @@ uint16_t PIN_LEDBUILTIN = 2;
 uint16_t SLAVE_ID = 1;
 
 boolean  isMainPower;
-boolean  isWorking;
+boolean  isWorking = false;
+boolean  isWorkingLast = false;
 boolean  isBatteryOk;
 boolean  isBatteryLow;
 boolean  isBatteryHigh;
 
-boolean  isStartFail;
 boolean  isHighTemp;
 boolean  isLowOilPress;
 boolean  isOverSpeed;
 boolean  isOverVoltage;
 
-uint16_t workingHours;
+boolean  cmdLineOff;
+boolean  cmdEgoff = false;
+boolean  cmdEgoffLast = false;
+boolean  cmdEgWaiting = false;
+long     cmdEgOffTime;
+
+uint32_t workingHours;
+uint32_t workingHoursSaved;
+long     workingHoursInit;
 uint16_t temperature;
 uint16_t batteryLevel;
 int16_t  oilPressure;
@@ -64,11 +85,17 @@ uint64_t modbusQualityTotalReads = 0;
 uint64_t modbusQualityErrors = 0;
 uint16_t modbusErrors;
 uint16_t modbusFails;
-uint16_t modbusMaxErrors = 5;
+uint16_t modbusMaxErrors = 3;
 boolean  modbusState = true;
 const int numDataRegs = 41;
 const int numControRegs = 11;
 int16_t  modbusData[numDataRegs + numControRegs];
+
+uint8_t  analogChannelToRead = 0;
+
+MCP23017 mcp1(I2C_SDA,I2C_SCL);    //create mcp instance
+
+MCP3201 adc(ADC_VREF, SPI_CS);
 
 PsychicHttpServer server;
 
@@ -144,9 +171,12 @@ void readModbus() {
       modbusState = false;
       modbusQualityTotalReads--;
       modbusQualityErrors--;
+      for (int k = 0; k < numDataRegs + numControRegs; k++) {
+        modbusData[k] = 0;
+      }
     }
   }
-  if (modbusSimulation || !modbusState) { // generates random values in case of modbusError
+  if (modbusSimulation) { // || !modbusState) { // generates random values in case of modbusError
 
     float runTime = millis() / 1000.0;
 
@@ -201,15 +231,13 @@ void readModbus() {
     modbusData[0x27] = uint16_t(10 + rand() % 10);
     modbusData[0x28] = uint16_t(100 + rand() % 100);
 
-    modbusData[0x2F] = 20;   // PT voltage ratio
+    modbusData[0x2F] = 1; // PT voltage ratio
     modbusData[0x30] = 5; //uint16_t(001 + rand() % 5);   // CT current ratio
 
     modbusData[0x32] = uint16_t(000 + rand() % 500);    // voltage imbalamce
     modbusData[0x33] = uint16_t(500 + rand() % 500);    // current imbalamce
 
   }
-
-  isOverVoltage = (modbusData[0x00] > 1500 || modbusData[0x01] > 1500 || modbusData[0x02] > 1500);
 
 
   if (modbusSerialEcho) {
@@ -251,8 +279,6 @@ void readModbus() {
     Serial.print(isWorking);
     Serial.print(" MP:");
     Serial.print(isMainPower);
-    Serial.print(" SF:");
-    Serial.print(isStartFail);
     Serial.print(" HT:");
     Serial.print(isHighTemp);
     Serial.print(" LP:");
@@ -261,33 +287,105 @@ void readModbus() {
     Serial.print(isOverSpeed);
     Serial.print(" OV:");
     Serial.print(isOverVoltage);
+    Serial.print(" -- wH:");
+    Serial.print(workingHours);
+    Serial.print(" wHsaved:");
+    Serial.print(workingHoursSaved);
+    Serial.print(" wHinit:");
+    Serial.print(workingHoursSaved);
+    Serial.print(" ms:");
+    Serial.print(millis());
     Serial.println("");
   }
 }
 
 void readVars() {
-  //////////////////////////////////////////////////////////
-  if (isWorking) workingHours++;
+  if (isWorking) {
+    long workingHourDiff = millis() - workingHoursInit;
+    if (workingHourDiff >= 6 * 60 * 100) {
+      workingHours++;
+      if(workingHours >= 1000000) workingHours = 0;
+      workingHoursInit += 6 * 60 * 100;
+    }
+  }
+  if (workingHours - workingHoursSaved >= 50 && !modbusSimulation) {
+    EEPROM.put(2, workingHours);
+    workingHoursSaved = workingHours;
+    EEPROM.commit();
+    Serial.println("salva de workingHours");
+  }
   
-  rpm = modbusData[0x1A] * 3;
-  
-  temperature = 300 + analogRead(pinTemperature) * 1100 / 4096;
-  batteryLevel = 80 + analogRead(pinBateryLevel) * 100 / 4096;
-  oilPressure = -20 + analogRead(pinOilPressure) * 100 / 4096;
-  
-  isWorking = digitalRead(pinWorking);
-  isMainPower = digitalRead(pinMainPower);
-  isStartFail = digitalRead(pinStartFail);
+  uint16_t raw = adc.read(MCP3201::Channel::SINGLE_0);
+  // get analog value
+  uint16_t val = adc.toAnalog(raw);
 
-  modbusSerialEcho = isMainPower;
-
-  isBatteryOk = (batteryLevel >= 110 && batteryLevel <= 150) ? true : false;
-  isBatteryLow = batteryLevel < 110 ? true : false;
-  isBatteryHigh = batteryLevel > 150 ? true : false;
+  switch (analogChannelToRead) {
+  case 0:
+    batteryLevel = val * 120 / 764.0;
+    break;
+  case 1:
+    temperature = val * 700 / 625;
+    break;
+  case 3:
+    oilPressure = val * 30 / 625;
+    break;
+  }
+  
+  isMainPower = batteryLevel > 60;
+  
+  isBatteryOk = (batteryLevel >= 110 && batteryLevel <=150) ? true : false;
+  isBatteryLow = batteryLevel < 110 ? true : false; // 11 => 2290 UC, 660 mV (12V, 764mV)
+  isBatteryHigh = batteryLevel > 150 ? true : false; // 15 => 3200UC
   
   isHighTemp = temperature > 950 ? true : false;
   isLowOilPress = oilPressure < 40 ? true : false;
-  isOverSpeed = rpm > 1900 ? true : false;
+  
+  rpm = modbusData[0x1A] * 0.3;
+  isOverSpeed = (rpm > 1950 || rpm < 1400) ? true : false;
+
+  isOverVoltage = (modbusData[0x00] > 1500 || modbusData[0x01] > 1500 || modbusData[0x02] > 1500);
+
+  isWorking = modbusData[0x1A] > 4000;
+  if (isWorking && !isWorkingLast) {
+    workingHoursInit = millis();
+    Serial.println("ARRANQUE...");
+  }
+  if (!isWorking && isWorkingLast && !modbusSimulation) {
+    if (workingHours != workingHoursSaved) {
+      EEPROM.put(2, workingHours);
+      workingHoursSaved = workingHours;
+      EEPROM.commit();
+      Serial.println("PARADA---");
+    } else {
+      Serial.println("PARADA--- (sin salvar eeprom) ----");
+    }
+  }
+  isWorkingLast = isWorking;
+
+  analogChannelToRead++;
+  if (analogChannelToRead == 2) analogChannelToRead++;
+  if (analogChannelToRead > 3) analogChannelToRead = 0;
+
+  uint8_t regMCP23017 = 0;
+  regMCP23017 |= isBatteryHigh ? 0x01 : 0x00;
+  regMCP23017 |= isOverVoltage ? 0x02 : 0x00;
+  regMCP23017 |= isOverSpeed   ? 0x04 : 0x00;
+  regMCP23017 |= isLowOilPress ? 0x08 : 0x00;
+  regMCP23017 |= isHighTemp    ? 0x10 : 0x00;
+  
+  mcp1.write_gpio(MCP23017_PORTA, regMCP23017 , MCP23017_ADDRESS_20);
+  
+  regMCP23017 = 0;
+  regMCP23017 |= analogChannelToRead & 0x03;
+  regMCP23017 |= cmdLineOff    ? 0x04 : 0x00;
+  regMCP23017 |= cmdEgoff      ? 0x08 : 0x00;
+  regMCP23017 |= isMainPower   ? 0x10 : 0x00;
+  regMCP23017 |= isWorking     ? 0x20 : 0x00;
+  regMCP23017 |= isBatteryOk   ? 0x40 : 0x00;
+  regMCP23017 |= isBatteryLow  ? 0x80 : 0x00;
+  
+  mcp1.write_gpio(MCP23017_PORTB,  regMCP23017 , MCP23017_ADDRESS_20);
+
 }
 
 StateUpdateResult updateVars(LightState &state) {
@@ -295,7 +393,7 @@ StateUpdateResult updateVars(LightState &state) {
     for (int i = 0; i < numDataRegs + numControRegs; i++)
       state.modbusRegs[i] = modbusData[i];
 
-    state.workingHours = workingHours;
+    state.workingHours = workingHours / 10.0;
     state.temperature = temperature;
     state.batteryLevel = batteryLevel;
     state.oilPressure = oilPressure;
@@ -303,7 +401,6 @@ StateUpdateResult updateVars(LightState &state) {
 
     state.isWorking = isWorking;
     state.isMainPower = isMainPower;
-    state.isStartFail = isStartFail;
     state.isBatteryOk = isBatteryOk;
     state.isBatteryLow = isBatteryLow;
     state.isBatteryHigh = isBatteryHigh;
@@ -311,6 +408,7 @@ StateUpdateResult updateVars(LightState &state) {
     state.isLowOilPress = isLowOilPress;
     state.isOverSpeed = isOverSpeed;
     state.isOverVoltage = isOverVoltage;
+    // state.cmdStop = state.cmdStop;
     
     state.modbusQualityTotalReads = modbusQualityTotalReads;
     state.modbusQualityErrors = modbusQualityErrors;
@@ -318,17 +416,80 @@ StateUpdateResult updateVars(LightState &state) {
     state.modbusFails = modbusFails;
     state.modbusState = modbusState;
 
+    cmdEgoff = state.cmdStop;
+
+    if (cmdEgoff && !cmdEgoffLast) {
+      cmdEgWaiting = true;
+      cmdEgOffTime = millis() + 5000;
+      Serial.println("contando ===================");
+    }
+    if (cmdEgWaiting) {
+      if (millis() > cmdEgOffTime) {
+        cmdEgWaiting = false;
+        if (cmdEgoff) {
+          state.cmdStop = false;
+          Serial.println("apagado por hardware............");
+        } else {
+          Serial.println("apagado por sotfware >>>>>>>>>>>>>>>>>>>>");
+        }
+      }
+    }
+    cmdEgoffLast = cmdEgoff;
+  
     return StateUpdateResult::CHANGED;
 }
 
 void setup()
 {
-    // start serial and filesystem
-    Serial.begin(SERIAL_BAUD_RATE);
+    EEPROM.begin(64);
+
+    // initialize serial
+    Serial.begin(115200);
 
     // // start modbus
     setupModbus();
 
+    // configure PIN mode
+    pinMode(SPI_CS, OUTPUT);
+
+    // set initial PIN state
+    digitalWrite(SPI_CS, HIGH);
+
+    // initialize SPI interface for MCP3201
+    SPISettings settings(ADC_CLK, MSBFIRST, SPI_MODE0);
+    SPI.begin();
+    SPI.beginTransaction(settings);
+
+    
+    mcp1.iodir(MCP23017_PORTA, MCP23017_IODIR_ALL_OUTPUT , MCP23017_ADDRESS_20);
+    mcp1.iodir(MCP23017_PORTB, MCP23017_IODIR_ALL_OUTPUT , MCP23017_ADDRESS_20);
+
+    mcp1.write_gpio(MCP23017_PORTB,  0x00 , MCP23017_ADDRESS_20);
+
+    // Init workingHours
+    // EEPROM.write(0, 0x00);
+    // EEPROM.write(1, 0x00);
+    // EEPROM.put(2, workingHours);
+    // EEPROM.commit();
+
+    uint8_t eep0 = EEPROM.read(0);
+    uint8_t eep1 = EEPROM.read(1);
+    Serial.println(eep0, HEX);
+    Serial.println(eep1, HEX);
+    if (eep0 == 0x55 && eep1 == 0xAA) {
+      EEPROM.get(2, workingHours);
+      // Serial.println("-----   eeprom ok ---------");
+    } else {
+      workingHours = 0;  // init value for workingHours
+      EEPROM.write(0, 0x55);
+      EEPROM.write(1, 0xAA);
+      EEPROM.put(2, workingHours);
+      EEPROM.commit();
+      // Serial.println("********   EEPROM inicializada *********");
+    }
+    workingHoursSaved = workingHours;
+    
+    
     // start ESP32-SvelteKit
     esp32sveltekit.begin();
 
@@ -336,24 +497,6 @@ void setup()
     lightStateService.begin();
     // start the light service
     lightMqttSettingsService.begin();
-
-    // Serial.println("ssssssssss--------------");
-    // Serial.println(FACTORY_WIFI_SSID);
-    // Serial.println(FACTORY_WIFI_PASSWORD);
-    // Serial.println(FACTORY_WIFI_HOSTNAME);
-    // Serial.println(FACTORY_WIFI_RSSI_THRESHOLD);
-    // Serial.println("xxxxxxxxxx--------------");
-    
-    pinMode(pinWorking, INPUT_PULLUP);
-    pinMode(pinMainPower, INPUT_PULLUP);
-    pinMode(pinStartFail, INPUT_PULLUP);
-
-    pinMode(pinRpm, ANALOG);
-    pinMode(pinTemperature, ANALOG);
-    pinMode(pinBateryLevel, ANALOG);
-    pinMode(pinOilPressure, ANALOG);
-
-    workingHours = 2000 + rand() % 1500;
 
 }
 
@@ -367,13 +510,16 @@ void loop()
 
   if ((runTime > timeOn) && !myClock) {
       myClock = true;
-      readModbus();
-      readVars();
+      readModbus();      
   }
   if ((runTime > timeOff) && myClock) {
-      timeOn = runTime + 2000;   // time ON
+      timeOn = runTime + 1000;   // time ON
       timeOff = runTime + 2000;  // time OFF
       myClock = false;
       lightStateService.update(updateVars, "modbus");
+  }
+  if (runTime > timeReadVars) {
+    readVars();
+    timeReadVars = runTime + 300;
   }
 }

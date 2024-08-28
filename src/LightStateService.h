@@ -48,7 +48,6 @@ public:
     boolean  modbusState;
     boolean  isWorking;
     boolean  isMainPower;
-    boolean  isStartFail;
     boolean  isBatteryOk;
     boolean  isBatteryLow;
     boolean  isBatteryHigh;
@@ -56,7 +55,8 @@ public:
     boolean  isLowOilPress;
     boolean  isOverSpeed;
     boolean  isOverVoltage;
-
+    boolean  cmdStop;
+    
     static void read(LightState &settings, JsonObject &root)
     {
         root["led_on"] = settings.ledOn;
@@ -104,7 +104,7 @@ public:
 
         root["isWorking"] = settings.isWorking;
         root["isMainPower"] = settings.isMainPower;
-        root["isStartFail"] = settings.isStartFail;
+        // root["isStartFail"] = settings.isStartFail;
         root["isBatteryOk"] = settings.isBatteryOk;
         root["isBatteryLow"] = settings.isBatteryLow;
         root["isBatteryHigh"] = settings.isBatteryHigh;
@@ -118,7 +118,8 @@ public:
         root["batteryLevel"] = settings.batteryLevel / 10.0;
         root["oilPressure"] = settings.oilPressure / 10.0;
         root["rpm"] = settings.rpm;
-        
+        root["cmdStop"] = settings.cmdStop;
+                
         root["modbusQualityTotalReads"] = settings.modbusQualityTotalReads;
         root["modbusQualityErrors"] = settings.modbusQualityErrors;
         root["modbusErrors"] = settings.modbusErrors;
@@ -129,10 +130,10 @@ public:
 
     static StateUpdateResult update(JsonObject &root, LightState &lightState)
     {
-        boolean newState = root["led_on"] | DEFAULT_LED_STATE;
-        if (lightState.ledOn != newState)
+        boolean newState = root["cmdStop"] | DEFAULT_LED_STATE;
+        if (lightState.cmdStop != newState)
         {
-            lightState.ledOn = newState;
+            lightState.cmdStop = newState;
             return StateUpdateResult::CHANGED;
         }
         return StateUpdateResult::UNCHANGED;
@@ -140,7 +141,7 @@ public:
 
     static void homeAssistRead(LightState &settings, JsonObject &root)
     {
-        root["state"] = settings.ledOn ? ON_STATE : OFF_STATE;
+        root["state"] = settings.cmdStop ? ON_STATE : OFF_STATE;
     }
 
     static StateUpdateResult homeAssistUpdate(JsonObject &root, LightState &lightState)
@@ -157,9 +158,9 @@ public:
             return StateUpdateResult::ERROR;
         }
         // change the new state, if required
-        if (lightState.ledOn != newState)
+        if (lightState.cmdStop != newState)
         {
-            lightState.ledOn = newState;
+            lightState.cmdStop = newState;
             return StateUpdateResult::CHANGED;
         }
         return StateUpdateResult::UNCHANGED;

@@ -96,7 +96,6 @@ export type LightState = {
 	imbalanceCurrent: number;
 	isWorking: boolean;
 	isMainPower: boolean;
-	isStartFail: boolean;
 	isBatteryOk: boolean;
 	isBatteryLow: boolean;
 	isBatteryHigh: boolean;
@@ -109,6 +108,7 @@ export type LightState = {
 	batteryLevel: number;
 	oilPressure: number;
 	rpm: number;
+	cmdStop: boolean;
 	modbusQualityTotalReads: number;
 	modbusQualityErrors: number;
 	modbusErrors: number;

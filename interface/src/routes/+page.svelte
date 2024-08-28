@@ -33,6 +33,7 @@
 	import Freqmeter from "$lib/components/panel-components/Freqmeter.svelte";
 	import StatusLedPanel from '$lib/components/panel-components/StatusLedPanel.svelte';
 	import ODO from "$lib/components/panel-components/ODO.svelte"
+	import StopButton from './StopButton.svelte';
 	import CarThermometer from "$lib/components/panel-components/CarThermometer.svelte";
 	import CarVoltmeter from "$lib/components/panel-components/CarVoltmeter.svelte";
 	import CarOilPressuremeter from "$lib/components/panel-components/CarOilPressuremeter.svelte";
@@ -78,7 +79,6 @@
 		imbalanceCurrent: 0,
 		isWorking: false,
 		isMainPower: false,
-		isStartFail: false,
 		isBatteryOk: false,
 		isBatteryLow: false,
 		isBatteryHigh: false,
@@ -91,6 +91,7 @@
 		batteryLevel: 0,
 		oilPressure: 0,
 		rpm: 0,
+		cmdStop: false,
 		modbusQualityTotalReads: 0,
 		modbusQualityErrors: 0,
 		modbusErrors: 0,
@@ -98,6 +99,9 @@
 		modbusState: false
 	};
 
+	let timeStopButtonPressed = 5000;
+
+	$: varCmdStop = false;
 
 	$: mag = 15.8;
 	$: f = 60;
@@ -127,7 +131,7 @@
 	let selected = colors[0];
 
 	let isSocketConnected = false;
-	let timeout;
+	let timeout: string | number | NodeJS.Timeout | undefined;
     
 	function intermdiateCalcutation() {
 		
@@ -149,11 +153,12 @@
 		ledStatus[2] = lightState.isBatteryOk;
 		ledStatus[3] = lightState.isBatteryLow;
 		ledStatus[4] = lightState.isBatteryHigh;
-		ledStatus[5] = lightState.isStartFail;
+		ledStatus[5] = false;
 		ledStatus[6] = lightState.isHighTemp;
 		ledStatus[7] = lightState.isLowOilPress;
 		ledStatus[8] = lightState.isOverVoltage;
 		ledStatus[9] = lightState.isOverSpeed;
+		// ledStatus[9] = lightState.cmdStop;
 
 		hoursRunning = Math.floor(lightState.workingHours);
 		hoursRunningDecimal = (lightState.workingHours * 10) % 10;
@@ -191,7 +196,6 @@
 	}
 
 	onMount(()=> {
-		console.log('entrando al  page');
 		socket.on<LightState>('led', (merterData) => {
 			lightState = merterData;
 			isSocketConnected = true;
@@ -201,12 +205,48 @@
 			intermdiateCalcutation(); 
 		});
 		timeout = setTimeout(requestData, 500);
+		varCmdStop = false;
 	});
 
 	onDestroy(() => {
 		socket.off('led');
 		clearTimeout(timeout);
 	});
+
+	function offCmdStop() {
+		varCmdStop = false;
+		postLightstate();
+	}
+
+	function handleCmdStop() {
+		if (!varCmdStop) {
+			varCmdStop = true; // Cambia el estado
+			setTimeout(offCmdStop, timeStopButtonPressed);
+			postLightstate();
+		}
+	}
+
+	async function postLightstate() {
+		try {
+			const response = await fetch('/rest/lightState', {
+				method: 'POST',
+				headers: {
+					Authorization: $page.data.features.security ? 'Bearer ' + $user.bearer_token : 'Basic',
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ cmdStop: varCmdStop })
+			});
+			if (response.status == 200) {
+				// notifications.success('Light state updated.', 3000);
+				const light = await response.json();
+				varCmdStop = light.cmdStop;
+			} else {
+				// notifications.error('User not authorized.', 3000);
+			}
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	}
 
 </script>
 
@@ -247,14 +287,23 @@
 	<StatusLedPanel ledStatus={ledStatus}/>
 </div>
 
-<!-- hour meter -->
-<div class="hour-label">Horas de trabajo:</div>
-<div class="hour-meter">
-    <div style="display: flex; align-items: center;">
-        <ODO value={hoursRunning} nrDigits={5} {dure} color="white" background="rgb(70, 70, 70)"/>
-        <div class="decimal-point">.</div>
-        <ODO value={hoursRunningDecimal} nrDigits={1} {dure} color="red" background="white"/>
-    </div>
+<div class="hours-and-stop-button">
+
+	<div >
+		<!-- hour meter -->
+		<div class="hour-label">Horas de trabajo:</div>
+		<div class="hour-meter">
+			<div style="display: flex; align-items: center;">
+				<ODO value={hoursRunning} nrDigits={5} {dure} color="white" background="rgb(70, 70, 70)"/>
+				<div class="decimal-point">.</div>
+				<ODO value={hoursRunningDecimal} nrDigits={1} {dure} color="red" background="white"/>
+			</div>
+		</div>
+	</div>
+
+	<!-- stop button -->
+	<StopButton timeStopButtonPressed={timeStopButtonPressed} enabled={lightState.isWorking} on:cmdStop={handleCmdStop} />
+	
 </div>
 
 <!-- instruments -->
@@ -292,7 +341,7 @@
 
 	.variable-selector button {
 		flex: 0;
-		min-width: 32px;
+		min-width: 31px;
 		max-width: 50px;
 		margin: 0 2px; /* Adjust margin as needed */
   	}
@@ -320,11 +369,20 @@
 	}
 
 	.status-led-panel {
-		margin-top: 40px;
+		margin-top: 30px;
+		margin-bottom: 30px;
+	}
+
+	.hours-and-stop-button {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-left: 30px;
+		margin-right: 30px;
 	}
 
 	.hour-label {
-		margin-top: 30px;
+		margin-top: 0px;
 		display: flex;
         align-items: center;
 		justify-content: center;

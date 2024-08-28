@@ -8,7 +8,7 @@
 <div class="status-led" class:active>
     {#if color === 'green'}
         <div class="led-ok"></div>
-    {:else}
+    {:else if color === 'red'}
         <div class="led-fail" ></div>
     {/if}
     <span class=ledName>{name}</span>

@@ -21,8 +21,9 @@ $: leds2 = [
         { name: 'Voltaje Batería Alto', active: ledStatus[4], color: 'red' },
         { name: 'Temp. refrigerante alta', active: ledStatus[6], color: 'red' },
         { name: 'Presión de aceite baja', active: ledStatus[7], color: 'red' },
-        { name: 'Voltaje fuera rango', active: ledStatus[8], color: 'red' },
-        { name: 'Velocidad fuera rango', active: ledStatus[9], color: 'red' },
+        { name: 'Velocidad fuera rango', active: ledStatus[8], color: 'red' },
+        { name: 'Voltaje fuera rango', active: ledStatus[9], color: 'red' },
+        
     ];
     
 </script>

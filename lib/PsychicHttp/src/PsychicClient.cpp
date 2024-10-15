@@ -27,7 +27,8 @@ int PsychicClient::socket()
 esp_err_t PsychicClient::close()
 {
   esp_err_t err = httpd_sess_trigger_close(_server, _socket);
-  // PsychicHttpServer::closeCallback(_server, _socket); // call this immediately so the client is taken off the list.
+  ////////////////////////////////////////////////////
+  PsychicHttpServer::closeCallback(_server, _socket); // call this immediately so the client is taken off the list.
 
   return err;
 }

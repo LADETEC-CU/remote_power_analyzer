@@ -99,7 +99,7 @@
 		modbusState: false
 	};
 
-	let timeStopButtonPressed = 5000;
+	let timeStopButtonPressed = 8000;
 
 	$: varCmdStop = false;
 
@@ -156,8 +156,8 @@
 		ledStatus[5] = false;
 		ledStatus[6] = lightState.isHighTemp;
 		ledStatus[7] = lightState.isLowOilPress;
-		ledStatus[8] = lightState.isOverVoltage;
-		ledStatus[9] = lightState.isOverSpeed;
+		ledStatus[8] = lightState.isOverSpeed;
+		ledStatus[9] = lightState.isOverVoltage;
 		// ledStatus[9] = lightState.cmdStop;
 
 		hoursRunning = Math.floor(lightState.workingHours);

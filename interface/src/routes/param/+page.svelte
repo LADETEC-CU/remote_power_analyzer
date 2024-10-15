@@ -356,7 +356,7 @@
 		font-size: 15px;
 		font-weight: bold;
 		color: white;
-		background-color: rgb(119, 201, 143);
+		background-color: rgb(119, 201, 144);
 		margin: 20px 0% 0px 0%;
 	}
 	.energy-items {

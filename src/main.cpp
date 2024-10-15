@@ -29,11 +29,17 @@
 #define I2C_SCL        22
 
 #define SPI_CS    	   5  	    // SPI slave select
-#define ADC_VREF       1250     // 1.25V Vref
-#define ADC_CLK        8000000  // SPI clock 8MHz
+#define ADC_VREF       5125 // 1250     // 1.25V Vref
+#define ADC_CLK        2000000 // 8000000  // SPI clock 8MHz
 
 boolean modbusSerialEcho = true;
 boolean modbusSimulation = false;
+boolean serialDebug = false;
+
+uint16_t f_simulated = 0;
+uint16_t v_simulated = 0;
+uint16_t f_simulatedInc = 0;
+uint16_t v_simulatedInc = 0;
 
 // const uint8_t pinWorking         = 27; 
 // const uint8_t pinMainPower       = 26; 
@@ -44,10 +50,11 @@ boolean modbusSimulation = false;
 // const uint8_t pinBateryLevel     = 35; // battery level (abalog)
 // const uint8_t pinOilPressure     = 36; // Oil presuure (analog)
 
-uint64_t timeOn                   = 1000;
-uint64_t timeOff                  = 2000;
+uint64_t timeOn                   = 1500;
+uint64_t timeOff                  = 3000;
 uint64_t timeReadVars             = 0;
-boolean myClock                   = false;
+boolean  myClock                  = false;
+float    Ts                       = 0.9;
 
 ModbusMaster node;
 uint8_t  result;
@@ -70,6 +77,7 @@ boolean  isOverVoltage;
 boolean  cmdLineOff;
 boolean  cmdEgoff = false;
 boolean  cmdEgoffLast = false;
+boolean  cmdEgAlm = false;
 boolean  cmdEgWaiting = false;
 long     cmdEgOffTime;
 
@@ -79,7 +87,19 @@ long     workingHoursInit;
 uint16_t temperature;
 uint16_t batteryLevel;
 int16_t  oilPressure;
+uint16_t temperatureRead_;
+uint16_t batteryLevelRead;
+int16_t  oilPressureRead;
+uint16_t temperature_k_1;
+uint16_t batteryLevel_k_1;
+int16_t  oilPressure_k_1;
+float    T_temperature        = 4;
+float    T_batteryLevel       = 4;
+float    T_oilPressure        = 15;
 uint16_t rpm;
+
+uint16_t  temperatureAnalogVal;
+uint16_t  oilPressureAnalogVal;
 
 uint64_t modbusQualityTotalReads = 0;
 uint64_t modbusQualityErrors = 0;
@@ -92,6 +112,8 @@ const int numControRegs = 11;
 int16_t  modbusData[numDataRegs + numControRegs];
 
 uint8_t  analogChannelToRead = 0;
+
+uint32_t writesToEeprom;
 
 MCP23017 mcp1(I2C_SDA,I2C_SCL);    //create mcp instance
 
@@ -124,6 +146,7 @@ void modbusPostTransmission() {
   digitalWrite(MODBUS_DIR_PIN, LOW);
   delay(50);
 }
+
 void setupModbus() {
   // RS-485 control pin
   pinMode(MODBUS_DIR_PIN, OUTPUT);
@@ -137,6 +160,13 @@ void setupModbus() {
   node.postTransmission(modbusPostTransmission);
 
   eepromInit();
+}
+
+void simulateFV() {
+  f_simulated = uint16_t(3000 + rand() % 1000);
+  v_simulated = uint16_t(60 + rand() % 350);
+  f_simulatedInc = uint16_t(50 + rand() % 150);
+  v_simulatedInc = uint16_t(15 + rand() % 35);
 }
 
 void readModbus() {
@@ -239,8 +269,16 @@ void readModbus() {
 
   }
 
+  // f_simulated += f_simulatedInc;
+  // modbusData[0x1A] = f_simulated;
+  // v_simulated += v_simulatedInc;
+  // modbusData[0x00] = v_simulated;
+  // modbusData[0x2F] = 1; // PT voltage ratio
+  // modbusData[0x30] = 5; //uint16_t(001 + rand() % 5);   // CT current ratio
+  
 
   if (modbusSerialEcho) {
+    // modbusSerialEcho = false;
     Serial.print(" - ");
     for (int k = 0; k < numDataRegs; k++) {
       Serial.print(modbusData[k]);
@@ -273,6 +311,8 @@ void readModbus() {
     Serial.print(batteryLevel);
     Serial.print(" oilP:");
     Serial.print(oilPressure);
+    Serial.print(" oilPval:");
+    Serial.print(oilPressureAnalogVal);
     Serial.print(" rpm:");
     Serial.print(rpm);
     Serial.print(" W:");
@@ -299,6 +339,15 @@ void readModbus() {
   }
 }
 
+void processCmd() {
+  if ((cmdEgoff && !cmdEgoffLast) || cmdEgAlm) { // && !cmdEgAlmLast)) {
+    cmdEgAlm = false;
+    cmdEgWaiting = true;
+    cmdEgOffTime = millis() + 8000;
+    if (serialDebug) Serial.println("contando ===================");
+  }
+}
+
 void readVars() {
   if (isWorking) {
     long workingHourDiff = millis() - workingHoursInit;
@@ -310,9 +359,11 @@ void readVars() {
   }
   if (workingHours - workingHoursSaved >= 50 && !modbusSimulation) {
     EEPROM.put(2, workingHours);
-    workingHoursSaved = workingHours;
     EEPROM.commit();
-    Serial.println("salva de workingHours");
+    workingHoursSaved = workingHours;
+    writesToEeprom++;
+    if (serialDebug) Serial.println("salva de workingHours");
+    // modbusSerialEcho = true;
   }
   
   uint16_t raw = adc.read(MCP3201::Channel::SINGLE_0);
@@ -321,50 +372,93 @@ void readVars() {
 
   switch (analogChannelToRead) {
   case 0:
-    batteryLevel = val * 120 / 764.0;
+    batteryLevelRead = (val + 10.1) / 20.2 + 5;
+    if (batteryLevelRead < 0) batteryLevelRead = 0;
+    if (millis() < 15000) batteryLevel_k_1 = batteryLevelRead;
+    batteryLevel = (1-exp(-Ts / ((float) T_batteryLevel))) * batteryLevelRead + exp(-Ts / ((float) T_batteryLevel)) * batteryLevel_k_1;
+    batteryLevel_k_1 = batteryLevel;
     break;
   case 1:
-    temperature = val * 700 / 625;
+    if (val > 3100) val = 3100;
+    temperatureRead_ = -0.4721*val+1470;
+    if (temperatureRead_ < 300) temperatureRead_ = 300;
+    temperatureAnalogVal = val;
+    if (millis() < 15000) temperature_k_1 = temperatureRead_;
+    temperature = (1-exp(-Ts / ((float) T_temperature))) * temperatureRead_ + exp(-Ts / ((float) T_temperature)) * temperature_k_1;
+    temperature_k_1 = temperature;
     break;
-  case 3:
-    oilPressure = val * 30 / 625;
+  case 2:
+    // oilPressure = -0.03146*val + 105.5;
+    oilPressureRead = -0.0001532*pow(val,1.628)+87.14+11;
+    if (oilPressureRead < 0) oilPressureRead = 0;
+    oilPressureAnalogVal = val;
+    if (millis() < 15000) oilPressure_k_1 = oilPressureRead;
+    oilPressure = (1-exp(-Ts / ((float) T_oilPressure))) * oilPressureRead + exp(-Ts / ((float) T_oilPressure)) * oilPressure_k_1;
+    oilPressure_k_1 = oilPressure;
     break;
   }
   
   isMainPower = batteryLevel > 60;
   
-  isBatteryOk = (batteryLevel >= 110 && batteryLevel <=150) ? true : false;
+  isBatteryOk = (batteryLevel >= 110 && batteryLevel <=155) ? true : false;
   isBatteryLow = batteryLevel < 110 ? true : false; // 11 => 2290 UC, 660 mV (12V, 764mV)
-  isBatteryHigh = batteryLevel > 150 ? true : false; // 15 => 3200UC
+  isBatteryHigh = batteryLevel > 155 ? true : false; // 15 => 3200UC
   
-  isHighTemp = temperature > 950 ? true : false;
-  isLowOilPress = oilPressure < 40 ? true : false;
+  isLowOilPress = oilPressure < 25 ? true : false;
   
   rpm = modbusData[0x1A] * 0.3;
-  isOverSpeed = (rpm > 1950 || rpm < 1400) ? true : false;
 
-  isOverVoltage = (modbusData[0x00] > 1500 || modbusData[0x01] > 1500 || modbusData[0x02] > 1500);
+  if (rpm > 1900 && !isOverSpeed) {
+    cmdEgAlm = true;
+    isOverSpeed = true;
+    if (serialDebug) Serial.println("alarmaaaaaaa rpm");
+    processCmd();
+  }
+  // cmdEgAlmLast = cmdEgAlm;
+  // isOverSpeed = (rpm > 1900 || (rpm < 1400 && rpm != 0)) ? true : false;
+  
+  if ((modbusData[0x00] > 1300 || modbusData[0x01] > 1300 || modbusData[0x02] > 1300) && !isOverVoltage) {
+    cmdEgAlm = true;
+    isOverVoltage = true;
+    Serial.println("alarmaaaaaaa Voltaje");
+    processCmd();
+  }
+  // isOverVoltage = (modbusData[0x00] > 1500 || modbusData[0x01] > 1500 || modbusData[0x02] > 1500);
 
-  isWorking = modbusData[0x1A] > 4000;
+  if (temperature > 950 && !isHighTemp) {
+    cmdEgAlm = true;
+    isHighTemp = true;
+    if (serialDebug) if (serialDebug) Serial.println("alarmaaaaaaa Temperatura");
+    processCmd();
+  }
+  // isHighTemp = temperature > 950 ? true : false;
+
+
+  isWorking = modbusData[0x1A] > 4500;
   if (isWorking && !isWorkingLast) {
     workingHoursInit = millis();
-    Serial.println("ARRANQUE...");
+    isOverSpeed = false;
+    isOverVoltage = false;
+    isHighTemp = false;
+    if (serialDebug) Serial.println("ARRANQUE...");
+    // modbusSerialEcho = true;
   }
   if (!isWorking && isWorkingLast && !modbusSimulation) {
+    // modbusSerialEcho = true;
     if (workingHours != workingHoursSaved) {
       EEPROM.put(2, workingHours);
-      workingHoursSaved = workingHours;
       EEPROM.commit();
-      Serial.println("PARADA---");
+      writesToEeprom++;
+      workingHoursSaved = workingHours;
+      if (serialDebug) Serial.println("PARADA---");
     } else {
-      Serial.println("PARADA--- (sin salvar eeprom) ----");
+      if (serialDebug) Serial.println("PARADA--- (sin salvar eeprom) ----");
     }
   }
   isWorkingLast = isWorking;
 
   analogChannelToRead++;
-  if (analogChannelToRead == 2) analogChannelToRead++;
-  if (analogChannelToRead > 3) analogChannelToRead = 0;
+  if (analogChannelToRead > 2) analogChannelToRead = 0;
 
   uint8_t regMCP23017 = 0;
   regMCP23017 |= isBatteryHigh ? 0x01 : 0x00;
@@ -378,7 +472,7 @@ void readVars() {
   regMCP23017 = 0;
   regMCP23017 |= analogChannelToRead & 0x03;
   regMCP23017 |= cmdLineOff    ? 0x04 : 0x00;
-  regMCP23017 |= cmdEgoff      ? 0x08 : 0x00;
+  regMCP23017 |= cmdEgWaiting  ? 0x08 : 0x00;
   regMCP23017 |= isMainPower   ? 0x10 : 0x00;
   regMCP23017 |= isWorking     ? 0x20 : 0x00;
   regMCP23017 |= isBatteryOk   ? 0x40 : 0x00;
@@ -408,7 +502,6 @@ StateUpdateResult updateVars(LightState &state) {
     state.isLowOilPress = isLowOilPress;
     state.isOverSpeed = isOverSpeed;
     state.isOverVoltage = isOverVoltage;
-    // state.cmdStop = state.cmdStop;
     
     state.modbusQualityTotalReads = modbusQualityTotalReads;
     state.modbusQualityErrors = modbusQualityErrors;
@@ -418,29 +511,40 @@ StateUpdateResult updateVars(LightState &state) {
 
     cmdEgoff = state.cmdStop;
 
-    if (cmdEgoff && !cmdEgoffLast) {
-      cmdEgWaiting = true;
-      cmdEgOffTime = millis() + 5000;
-      Serial.println("contando ===================");
-    }
+    processCmd();
+    
     if (cmdEgWaiting) {
       if (millis() > cmdEgOffTime) {
         cmdEgWaiting = false;
+        
+        simulateFV();
+
         if (cmdEgoff) {
           state.cmdStop = false;
-          Serial.println("apagado por hardware............");
+          if (serialDebug) Serial.println("apagado por hardware............");
         } else {
-          Serial.println("apagado por sotfware >>>>>>>>>>>>>>>>>>>>");
+          if (serialDebug) Serial.println("apagado por sotfware >>>>>>>>>>>>>>>>>>>>");
+        }
+        if (cmdEgAlm) {
+          cmdEgAlm = false;
+          if (serialDebug) Serial.println("apagada la Alarma **********");
         }
       }
     }
     cmdEgoffLast = cmdEgoff;
-  
     return StateUpdateResult::CHANGED;
 }
 
 void setup()
 {
+    delay(1000);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
+
+    delay(1000);
+
+    simulateFV();
+
     EEPROM.begin(64);
 
     // initialize serial
@@ -474,18 +578,20 @@ void setup()
 
     uint8_t eep0 = EEPROM.read(0);
     uint8_t eep1 = EEPROM.read(1);
-    Serial.println(eep0, HEX);
-    Serial.println(eep1, HEX);
+    if (serialDebug) {
+      Serial.println(eep0, HEX);
+      Serial.println(eep1, HEX);
+    }
     if (eep0 == 0x55 && eep1 == 0xAA) {
       EEPROM.get(2, workingHours);
-      // Serial.println("-----   eeprom ok ---------");
+      // if (serialDebug) Serial.println("-----   eeprom ok ---------");
     } else {
       workingHours = 0;  // init value for workingHours
       EEPROM.write(0, 0x55);
       EEPROM.write(1, 0xAA);
       EEPROM.put(2, workingHours);
       EEPROM.commit();
-      // Serial.println("********   EEPROM inicializada *********");
+      // if (serialDebug) Serial.println("********   EEPROM inicializada *********");
     }
     workingHoursSaved = workingHours;
     
@@ -498,6 +604,8 @@ void setup()
     // start the light service
     lightMqttSettingsService.begin();
 
+        // digitalWrite(LED_BUILTIN, LOW);
+
 }
 
 void loop()
@@ -509,17 +617,19 @@ void loop()
   ulong runTime = millis();
 
   if ((runTime > timeOn) && !myClock) {
+      // if (serialDebug) Serial.println("time ON ....");   
       myClock = true;
-      readModbus();      
+      readModbus();   
   }
   if ((runTime > timeOff) && myClock) {
-      timeOn = runTime + 1000;   // time ON
-      timeOff = runTime + 2000;  // time OFF
+      // if (serialDebug) Serial.println("time off ____");   
+      timeOn = runTime + 1500;   // time ON
+      timeOff = runTime + 3000;  // time OFF
       myClock = false;
       lightStateService.update(updateVars, "modbus");
   }
   if (runTime > timeReadVars) {
     readVars();
-    timeReadVars = runTime + 300;
+    timeReadVars = runTime + 1000 * Ts / 3;
   }
 }

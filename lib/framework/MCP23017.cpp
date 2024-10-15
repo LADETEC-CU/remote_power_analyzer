@@ -22,7 +22,9 @@ uint8_t MCP23017::read(uint16_t reg, uint8_t address)
 
   while (Wire.available()) { // slave may send less than requested
     c = Wire.read();         // receive a byte as character
+#ifdef SERIAL_INFO
     Serial.print(c);         // print the character
+#endif
   }
 
   return c;
@@ -95,7 +97,9 @@ uint8_t  MCP23017::read_gpio(uint8_t port, uint8_t address)
 
   while (Wire.available()) { // slave may send less than requested
     c = Wire.read();         // receive a byte as character
+#ifdef SERIAL_INFO
     Serial.print(c);         // print the character
+#endif
   }
 
   return c;
@@ -128,7 +132,9 @@ uint8_t  MCP23017::read_gpio_bit(uint8_t port, uint8_t pin, uint8_t address)
 
   while (Wire.available()) { // slave may send less than requested
     c = Wire.read();         // receive a byte as character
+#ifdef SERIAL_INFO
     Serial.print(c);         // print the character
+#endif
   }
 
   c = c & (1<<pin);

@@ -14,13 +14,15 @@
 		oilPressureNeedle = oilPressure;
 		if (oilPressureNeedle < -0.9)
 			oilPressureNeedle = -0.9;
-		else if (oilPressureNeedle > 6.9)
-			oilPressureNeedle = 6.9;
+		else if (oilPressureNeedle > 8.9)
+			oilPressureNeedle = 8.9;
 	}
 
-	let angle1 = (90 - 13.9*(oilPressureNeedle - 3)) * Math.PI / 180;;
+	// let angle1 = (90 - 13.9*(oilPressureNeedle - 3)) * Math.PI / 180;
+	let angle1 = (0.8383*oilPressureNeedle*oilPressureNeedle - 16.46*oilPressureNeedle + 128.3) * Math.PI / 180;
 	
-	$: angle = (90 - 13.9*(oilPressureNeedle - 3)) * Math.PI / 180;
+	// $: angle = (90 - 13.9*(oilPressureNeedle - 3)) * Math.PI / 180;
+	$: angle = (0.8383*oilPressureNeedle*oilPressureNeedle - 16.46*oilPressureNeedle + 128.3) * Math.PI / 180;
 
 	$: x2 = 80 * Math.cos(angle);
   	$: y2 = 50 - 60 * Math.sin(angle);
@@ -167,7 +169,7 @@
 		font-weight = "bold"
 		fill="white"
         transform = "rotate(39)"
-	>6</text>
+	>8</text>
 
 
     <line class="needle" 
